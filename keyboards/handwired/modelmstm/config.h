@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define VENDOR_ID       0xFEED
 #define PRODUCT_ID      0x6465
 #define DEVICE_VER      0x0102
-#define MANUFACTURER    none
+#define MANUFACTURER    marfrit
 #define PRODUCT         modelmstm
 
 /* key matrix size */
@@ -33,23 +33,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define MATRIX_ROW_PINS { A0, A1, A2, A3, A4, A5, A6, A7 }
 #define MATRIX_COL_PINS { B8, B7, B6, B5, B4, B3, A15, C13, C14, A10, C15, A8, B15, B14, B13, B12 }
 #define UNUSED_PINS
-#define MATRIX_HAS_GHOST
 
 /* COL2ROW, ROW2COL*/
 #define DIODE_DIRECTION ROW2COL
 
 /* define if matrix has ghost */
-//#define MATRIX_HAS_GHOST
+#define MATRIX_HAS_GHOST
 
 /* Set 0 if debouncing isn't needed */
 #define DEBOUNCE    5
 
-#define TAPPING_TERM 500
-
 /* Mechanical locking support. Use KC_LCAP, KC_LNUM or KC_LSCR instead in keymap */
-#define LOCKING_SUPPORT_ENABLE
+//#define LOCKING_SUPPORT_ENABLE
 /* Locking resynchronize hack */
-#define LOCKING_RESYNC_ENABLE
+//#define LOCKING_RESYNC_ENABLE
 
 /*
  * Feature disable options

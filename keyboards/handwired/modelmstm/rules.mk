@@ -7,10 +7,10 @@ STM32_BOOTLOADER_ADDRESS = 0x1FFF0000
 # Build Options
 #   change yes to no to disable
 #
-KEYBOARD_SHARED_EP       = yes
+KEYBOARD_SHARED_EP       = no
 SERIAL_DRIVER = no
 
-BOOTMAGIC_ENABLE = no       # Virtual DIP switch configuration
+BOOTMAGIC_ENABLE = lite     # Virtual DIP switch configuration
 MOUSEKEY_ENABLE = no        # Mouse keys
 EXTRAKEY_ENABLE = no        # Audio control and System control
 CONSOLE_ENABLE = yes        # Console for debug
