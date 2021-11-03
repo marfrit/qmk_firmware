@@ -7,8 +7,8 @@ STM32_BOOTLOADER_ADDRESS = 0x1FFF0000
 # Build Options
 #   change yes to no to disable
 #
-KEYBOARD_SHARED_EP       = no
-SERIAL_DRIVER = no
+KEYBOARD_SHARED_EP = yes
+SERIAL_DRIVER = yes
 
 BOOTMAGIC_ENABLE = lite     # Virtual DIP switch configuration
 MOUSEKEY_ENABLE = yes       # Mouse keys
@@ -25,5 +25,7 @@ MIDI_ENABLE = no            # MIDI support
 UNICODE_ENABLE = yes        # Unicode
 BLUETOOTH_ENABLE = no       # Enable Bluetooth with the Adafruit EZ-Key HID
 AUDIO_ENABLE = no           # Audio output on port C6
+LTO_ENABLE = yes
+#EEPROM_DRIVER = transient
 
-EEPROM_DRIVER = transient
+OPT_DEFS += -DCORTEX_ENABLE_WFI_IDLE=TRUE

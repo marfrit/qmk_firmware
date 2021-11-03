@@ -35,7 +35,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define UNUSED_PINS
 
 /* COL2ROW, ROW2COL*/
-#define DIODE_DIRECTION ROW2COL
+#define DIODE_DIRECTION COL2ROW
 
 /* define if matrix has ghost */
 #define MATRIX_HAS_GHOST
@@ -65,3 +65,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //#define NO_ACTION_ONESHOT
 //#define NO_ACTION_MACRO
 //#define NO_ACTION_FUNCTION
+
+#define EARLY_INIT_PERFORM_BOOTLOADER_JUMP TRUE
+//#define STM32_HSECLK 8000000
