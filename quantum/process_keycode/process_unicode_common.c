@@ -105,6 +105,7 @@ __attribute__((weak)) void unicode_input_start(void) {
             break;
         case UC_WINC:
             tap_code(UNICODE_KEY_WINC);
+            wait_ms(UNICODE_TYPE_DELAY);
             tap_code(KC_U);
             break;
     }
