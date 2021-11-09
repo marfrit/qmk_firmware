@@ -1,5 +1,5 @@
 AUTO_SHIFT_ENABLE = no
-LINK_TIME_OPTIMIZATION_ENABLE = yes
+LTO_EANBLE = yes
 BOOTMAGIC_ENABLE = no        # Virtual DIP switch configuration(+1000)
 MOUSEKEY_ENABLE = no         # Mouse keys(+4700)
 EXTRAKEY_ENABLE = no        # Audio control and System control(+450)
@@ -13,4 +13,4 @@ UNICODE_ENABLE = no          # Unicode
 BLUETOOTH_ENABLE = no        # Enable Bluetooth with the Adafruit EZ-Key HID
 RGBLIGHT_ENABLE = no         # Enable WS2812 RGB underlight.
 API_SYSEX_ENABLE = no
-
+UNICODEMAP_ENABLE = yes
