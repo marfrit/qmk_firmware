@@ -191,7 +191,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       K18,   K19,   K1A,   K1B,   K1C,   K1D,   K1E,   K1F    }, /* 18-1F */ \
     { K20,   K21,   K22,   K23,   K24,   K25,   K26,   K27,      /* 20-27 */ \
       K28,   K29,   K2A,   K2B,   K2C,   K2D,   K2E,   K2F    }, /* 28-2F */ \
-    { K30,   K31,   K32,   K33,   K34,   K35,   K36,   K37,      /* 30-37 */ \
+    { K30,   KC_NO,   K32,   K33,   K34,   K35,   K36,   K37,      /* 30-37 */ \
       K38,   K39,   K3A,   K3B,   K3C,   K3D,   K3E,   K3F    }, /* 38-3F */ \
     { K40,   K41,   K42,   K43,   K44,   K45,   K46,   K47,      /* 40-47 */ \
       K48,   K49,   K4A,   K4B,   K4C,   K4D,   K4E,   K4F    }, /* 48-4F */ \
