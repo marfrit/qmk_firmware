@@ -28,8 +28,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define MATRIX_ROWS 8  // keycode bit: 3-0
 #define MATRIX_COLS 16   // keycode bit: 6-4
 
-#define DIODE_DIRECTION COL2ROW
-
 /* legacy keymap support */
 #define USE_LEGACY_KEYMAP
 
@@ -46,12 +44,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define PS2_CLOCK_PIN   D1
 #define PS2_DATA_PIN    D0
 
-#define XT_RST_PIN1     B6
-#define XT_RST_PIN2     B7
+#define XT_RST_PIN1     B1
+#define XT_RST_PIN2     B3
 
 #define PS2_INT_INIT()  do {    \
-    EICRA |= ((1<<ISC11) |      \
-              (0<<ISC10));      \
+    EICRA |= ((1<<ISC31) |      \
+              (0<<ISC30));      \
 } while (0)
 #define PS2_INT_ON()  do {      \
     EIMSK |= (1<<INT1);         \

@@ -53,6 +53,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "ps2_io.h"
 #include "print.h"
 #include "wait.h"
+#include "gpio.h"
 
 #define WAIT(stat, us, err)     \
     do {                        \

@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ps2.h"
 #include "matrix.h"
 #include "ibmpc_usb.h"
+#include "print.h"
 
 #define print_matrix_row(row)  print_bin_reverse8(matrix_get_row(row))
 #define print_matrix_header()  print("\nr/c 01234567\n")
@@ -36,13 +37,8 @@ static int8_t process_cs2(uint8_t code);
 static int8_t process_cs3(uint8_t code);
 
 static uint8_t matrix[MATRIX_ROWS];
-#define ROW(code)      (code>>3)
-#define COL(code)      (code&0x07)
-
-void hook_early_init(void)
-{
-    ibmpc_host_init();
-}
+#define ROW(code)      ((code>>4)&0x07)
+#define COL(code)      (code&0x0F)
 
 __attribute__ ((weak))
 void matrix_init_user(void) {
@@ -52,8 +48,12 @@ void matrix_init(void)
 {
     debug_enable = true;
 
+    xprintf("Hello world!");
     // initialize matrix state: all keys off
     for (uint8_t i=0; i < MATRIX_ROWS; i++) matrix[i] = 0x00;
+
+    ibmpc_host_init();
+    ibmpc_host_enable();
 
     return;
 }

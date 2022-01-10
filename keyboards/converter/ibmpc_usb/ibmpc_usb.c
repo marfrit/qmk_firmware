@@ -200,7 +200,7 @@ void ibmpc_host_isr_clear(void)
 ISR(PS2_INT_VECT)
 {
     uint8_t dbit;
-    dbit = readPin(PS2_DATA_PIN);
+    dbit = PIND&(1<<0);
 
     // Timeout check
     uint8_t t;
@@ -270,8 +270,8 @@ ISR(PS2_INT_VECT)
             {
                 uint8_t us = 100;
                 // wait for rising and falling edge of b7 of XT_IBM
-                while (!readPin(PS2_CLOCK_PIN) && us) { wait_us(1); us--; }
-                while ( readPin(PS2_CLOCK_PIN)  && us) { wait_us(1); us--; }
+                while (!(PIND&(1<<1)) && us) { wait_us(1); us--; }
+                while (  PIND&(1<<1)  && us) { wait_us(1); us--; }
 
                 if (us) {
                     // XT_IBM-error: read start(0) as 1
@@ -296,8 +296,8 @@ ISR(PS2_INT_VECT)
             {
                 uint8_t us = 100;
                 // wait for rising and falling edge of AT stop bit to discriminate between XT and AT
-                while (!readPin(PS2_CLOCK_PIN) && us) { wait_us(1); us--; }
-                while ( readPin(PS2_CLOCK_PIN)  && us) { wait_us(1); us--; }
+                while (!(PIND&(1<<1)) && us) { wait_us(1); us--; }
+                while (  PIND&(1<<1)  && us) { wait_us(1); us--; }
 
                 if (us) {
                     // found stop bit: AT-midway - process the stop bit in next ISR
