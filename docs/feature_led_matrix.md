@@ -54,7 +54,7 @@ For split keyboards using `LED_MATRIX_SPLIT` with an LED driver, you can either 
 Define these arrays listing all the LEDs in your `<keyboard>.c`:
 
 ```c
-const is31_led __flash g_is31_leds[DRIVER_LED_TOTAL] = {
+const is31_led PROGMEM g_is31_leds[DRIVER_LED_TOTAL] = {
 /* Refer to IS31 manual for these locations
  *    driver
  *    |  LED address
@@ -333,7 +333,7 @@ Where `28` is an unused index from `eeconfig.h`.
 If you want to set custom indicators, such as an LED for Caps Lock, or layer indication, you can use the `led_matrix_indicators_kb` or `led_matrix_indicators_user` function for that: 
 ```c
 void led_matrix_indicators_kb(void) {
-    led_matrix_set_color(index, value);
+    led_matrix_set_value(index, value);
 }
 ```
 
