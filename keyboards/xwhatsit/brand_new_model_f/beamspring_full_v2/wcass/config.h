@@ -24,16 +24,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define PRODUCT_ID 0x0002
 #define DEVICE_VER 0x0001
 #define MANUFACTURER Tom Wong-Cornall/Ellipse/wcass/Purdea Andrei
-#define PRODUCT modelfkeyboards.com Brand New Beamspring SSK by Model F Labs
+#define PRODUCT modelfkeyboards.com Brand New Beamspring Full Size Keyboard by Model F Labs
 #define DESCRIPTION QMK firmware for the modelfkeyboards.com brand new beamspring reproductions
 
 /* key matrix size */
 #define MATRIX_ROWS 8
-#define MATRIX_COLS 14
-// Note: columns 0, and 1 match physical column 0, and 1
-//       columns k where k >= 2, match physical column k + 2
-//         therefore column 2 matches physical column 4, and column 13 matches physical column 15
-//       physical columns 2 and 3 are not used
+#define MATRIX_COLS 16
+// Note: physical column are 16, but only 11 are ever used. Column 0..9 match the physical column. Column 10 is physical column 15.
 
 /*
  * Keyboard Matrix Assignments
@@ -280,7 +277,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define CAPSENSE_HARDCODED_THRESHOLD 142
 #endif
 
-#define CAPSENSE_KEYMAP_COL_TO_PHYSICAL_COL(col) (((col) >= 2)?((col) + 2):(col))
+#define CAPSENSE_KEYMAP_COL_TO_PHYSICAL_COL(col) (col)
 
 // By default we set up for support of xwhatsit's solenoid driver board.
 // Comment out HAPTIC_ENABLE_PIN if you don't have an enable pin:
@@ -298,17 +295,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 // If the lock lights are not used, then please don't define the below pins,
 // or leave them set as unused pins:
-
-// The following definitions match the lock lights as used by the original
-// xwhatsit firmware, but enabling all three of these is not compatible with
-// standard solenoid support, because B6 and B7 pins are already in use:
-//#define LED_NUM_LOCK_PIN B5
-//#define LED_CAPS_LOCK_PIN B6
-//#define LED_SCROLL_LOCK_PIN B4
-// Since solenoid support is enabled by default, the above lock light pin
-// assignments are disabled by default.
-// Instead the more common Num Lock and Caps Lock are assigned the following
-// way by default, and this can be used in combination with the solenoid:
 #define LED_NUM_LOCK_PIN B5
 #define LED_CAPS_LOCK_PIN B4
 #define LED_SCROLL_LOCK_PIN B3
