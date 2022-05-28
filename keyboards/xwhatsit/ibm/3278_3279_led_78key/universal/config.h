@@ -33,10 +33,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define MATRIX_EXTRA_DIRECT_ROWS 1
 #define MATRIX_EXTRA_DIRECT_COLS 3
-// In this case direct pins are active high, so we don't define _ACTIVE_LOW
-//#define MATRIX_EXTRA_DIRECT_PINS_ACTIVE_LOW
-// Direct pins have external pull-downs. Enabling internal pull-ups would be counter-productive
-//#define MATRIX_EXTRA_DIRECT_PINS_NEED_INTERNAL_PULLUP
+
+#define MATRIX_EXTRA_DIRECT_PINS_ACTIVE_LOW
+#define MATRIX_EXTRA_DIRECT_PINS_NEED_INTERNAL_PULLUP
 #define MATRIX_EXTRA_DIRECT_PINS { { B6, B3, F4 } }
 
 /*
