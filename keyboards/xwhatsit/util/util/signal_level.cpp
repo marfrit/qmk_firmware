@@ -202,7 +202,7 @@ void SignalLevelMonitorWindow::paintEvent(QPaintEvent *event)
             const unsigned int col = layout->keys[j].col;
             const unsigned int row = layout->keys[j].row;
             if (row >= (keyboard->rows-keyboard->extra_direct_rows))
-                break;
+                continue;
             if (signal_level.at(row).at(col)!=0xffffu)
             {
                 if ((mins == 0xffffu) || (mins > min_signal_level.at(row).at(col)))
