@@ -1,8 +1,13 @@
+
 #pragma once
+
+// place overrides here
 #define PERMISSIVE_HOLD
 #define IGNORE_MOD_TAP_INTERRUPT
-#undef TAPPING_TERM
-#define TAPPING_TERM 200
+#undef  TAPPING_TERM
+#define TAPPING_TERM 175
+
+#define UNICODE_SELECTED_MODES UC_WIN
 
 //#define USE_MATRIX_I2C
 
