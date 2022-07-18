@@ -4,5 +4,17 @@ Supported Hardware: *STM32F401CCU6 WeAct v1.3*.
 
 Supported boards / matrices:
 
-IBM 1392595 (102 key terminal board)
-IBM 1390587 (122 key terminal board)
+* IBM 1392595 (102 key terminal board)
+* IBM 1390587 (122 key terminal board)
+
+Other boards will need additional keymaps and matrix-to-keycode mappings in modelmstm.h.
+
+To compile the M122 version, do
+
+``` make handwired/modelmstm/terminal122:marfrit_terminal122 ```
+
+And upload the bin to your controller.
+
+Do not use pins
+B2 (pull down for reliably getting to dfu-mode via keycode), A9, A11, and A12 (USB port is connected to these pins). Use C13, C14, and C15 as output only.
+
