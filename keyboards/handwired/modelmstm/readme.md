@@ -1,5 +1,7 @@
 # f401 blackpill modelm 
 
+![IBM Model M Controller](https://dynamic.reauktion.de/flugphase/wp-content/uploads/2021/11/IMG_20211030_204552-scaled.jpg)
+
 Supported Hardware: *STM32F401CCU6 WeAct v1.3*.
 
 Supported boards / matrices:
@@ -18,3 +20,4 @@ And upload the bin to your controller.
 Do not use pins
 B2 (pull down for reliably getting to dfu-mode via keycode), A9, A11, and A12 (USB port is connected to these pins). Use C13, C14, and C15 as output only.
 
+As for parts, you will need the appropriate Triomate connectors to connect to the matrix sheets, a few wires, a 4.7kOhm pull down resistor and a perma proto board/ bread board.
