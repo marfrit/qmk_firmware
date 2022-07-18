@@ -21,3 +21,5 @@ Do not use pins
 B2 (pull down for reliably getting to dfu-mode via keycode), A9, A11, and A12 (USB port is connected to these pins). Use C13, C14, and C15 as output only.
 
 As for parts, you will need the appropriate Triomate connectors to connect to the matrix sheets, a few wires, a 4.7kOhm pull down resistor and a perma proto board/ bread board.
+
+No variant with LEDs yet - but that's going to change soon.
