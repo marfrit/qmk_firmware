@@ -8,6 +8,7 @@ Supported boards / matrices:
 
 * IBM 1392595 (102 key terminal board)
 * IBM 1390587 (122 key terminal board)
+* IBM 1391403 (102 key ISO board)
 
 Other boards will need additional keymaps and matrix-to-keycode mappings in modelmstm.h.
 
@@ -18,7 +19,15 @@ To compile the M122 version, do
 And upload the bin to your controller.
 
 Do not use pins
-B2 (pull down for reliably getting to dfu-mode via keycode), A9, A11, and A12 (USB port is connected to these pins). Use C13, C14, and C15 as output only.
+* B2 (pull down for reliably getting to dfu-mode via keycode), 
+* A9, 
+* A11, and 
+* A12 (USB port is connected to these pins). 
+
+Use 
+* C13, 
+* C14, and 
+* C15 as input only.
 
 As for parts, you will need the appropriate Triomate connectors to connect to the matrix sheets, a few wires, a 4.7kOhm pull down resistor and a perma proto board/ bread board.
 

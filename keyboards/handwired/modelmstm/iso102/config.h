@@ -20,19 +20,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /* USB Device descriptor parameter */
 #define VENDOR_ID       0xFEED
 #define PRODUCT_ID      0x6465
-#define DEVICE_VER      0x0122
+#define DEVICE_VER      0x0100
 #define MANUFACTURER    marfrit
 #define PRODUCT         modelmstm
 
 /* key matrix size */
 #define MATRIX_ROWS 8
-#define MATRIX_COLS 20
+#define MATRIX_COLS 16
 
 // #define SD1_CTS_PIN B9
 
-#define MATRIX_ROW_PINS { A7,  A6,  A5,  A4, A3, A2, A1, A0 }
-//#define MATRIX_COL_PINS { C13, C14, C15, B9, B8, B7, B6, B5, B4, B3, A15, B0, B1, A10, B10, A8, B15, B14, B13, B12 }
-#define MATRIX_COL_PINS { B12, B13, B14, B15, A8, B10, A10, B1, B0, A15, B3, B4, B5, B6, B7, B8, B9, C15, C14, C13 }
+#define MATRIX_ROW_PINS { A0, A1, A2, A3, A4, A5, A6, A7 }
+#define MATRIX_COL_PINS { B9, B8, B7, B6, B5, B4, B3, A15, C13, C14, A10, C15, A8, B15, B14, B13 }
 #define UNUSED_PINS
 
 /* COL2ROW, ROW2COL*/
@@ -69,3 +68,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define EARLY_INIT_PERFORM_BOOTLOADER_JUMP TRUE
 //#define STM32_HSECLK 8000000
+
+#define LED_NUM_LOCK_PIN B0
+#define LED_CAPS_LOCK_PIN B1
+#define LED_SCROLL_LOCK_PIN B10
+#define LED_PIN_ON_STATE 0
