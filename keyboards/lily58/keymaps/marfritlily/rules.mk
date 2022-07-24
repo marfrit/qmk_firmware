@@ -1,5 +1,5 @@
 AUTO_SHIFT_ENABLE = no
-#TAP_DANCE_ENABLE = yes 
+#TAP_DANCE_ENABLE = yes
 LTO_ENABLE = yes
 BOOTMAGIC_ENABLE = no        # Virtual DIP switch configuration(+1000)
 MOUSEKEY_ENABLE = no         # Mouse keys(+4700)
@@ -10,11 +10,10 @@ EXTRAKEY_ENABLE = yes        # Audio control and System control(+450)
 #BACKLIGHT_ENABLE = yes        # Enable keyboard backlight functionality
 MIDI_ENABLE = no             # MIDI controls
 AUDIO_ENABLE = no            # Audio output on port C6
-UNICODE_ENABLE = yes          # Unicode
 BLUETOOTH_ENABLE = no        # Enable Bluetooth with the Adafruit EZ-Key HID
 #RGBLIGHT_ENABLE = no         # Enable WS2812 RGB underlight.
 #API_SYSEX_ENABLE = no
-RGBLIGHT_ENABLE = yes       # Enable WS2812 RGB underlight. 
+RGBLIGHT_ENABLE = yes       # Enable WS2812 RGB underlight.
 SWAP_HANDS_ENABLE = no      # Enable one-hand typing
 OLED_DRIVER_ENABLE= yes     # OLED display
 

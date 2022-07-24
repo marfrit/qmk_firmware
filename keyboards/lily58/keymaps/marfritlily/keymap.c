@@ -1,29 +1,5 @@
 #include QMK_KEYBOARD_H
 
-enum unicode_names {
-    KC_AU,
-    KC_aU,
-    KC_OU,
-    KC_oU,
-    KC_UU,
-    KC_uU,
-    KC_SS,
-    KC_sS,
-    KC_EUR
-};
-
-const uint32_t PROGMEM unicode_map[] = {
-    [KC_AU]  = 0xC4,  // Ä
-    [KC_aU]  = 0xE4,  // ä
-    [KC_OU]  = 0xD6,
-    [KC_oU]  = 0xF6,
-    [KC_UU]  = 0xDC,
-    [KC_uU]  = 0xFC,
-    [KC_SS]  = 0x1E9E,
-    [KC_sS]  = 0xDF,
-    [KC_EUR] = 0x20AC
-};
-
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 	[0] = LAYOUT(
         ALL_T(KC_ESC), KC_1, KC_2, KC_3, KC_4, KC_5, KC_6, KC_7, KC_8, KC_9, KC_0, KC_BSPC,
@@ -45,8 +21,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS),
 	[3] = LAYOUT(
         KC_TRNS, UC_M_LN, UC_M_MA,  UC_M_WI,  KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, QK_BOOT,
-        KC_TRNS, KC_TRNS, XP(KC_uU, KC_UU),   KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, RGB_TOG, RGB_VAI, RGB_MOD, KC_TRNS, KC_TRNS,
-        KC_TRNS, KC_TRNS, KC_TRNS, X(KC_EUR), XP(KC_aU, KC_AU), XP(KC_oU, KC_OU), KC_TRNS, BL_OFF, RGB_VAD, RGB_RMOD, XP(KC_sS, KC_SS), KC_TRNS, KC_TRNS, KC_TRNS,
+        KC_TRNS, KC_TRNS, RALT(KC_Y),   KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, RGB_TOG, RGB_VAI, RGB_MOD, KC_TRNS, KC_TRNS,
+        KC_TRNS, KC_TRNS, KC_TRNS, RALT(KC_5), RALT(KC_Q), RALT(KC_P), KC_TRNS, BL_OFF, RGB_VAD, RGB_RMOD, RALT(KC_S), KC_TRNS, KC_TRNS, KC_TRNS,
         KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,   KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
         KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,   KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS)
 };
