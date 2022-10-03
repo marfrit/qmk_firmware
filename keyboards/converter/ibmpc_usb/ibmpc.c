@@ -195,6 +195,8 @@ int16_t ibmpc_host_recv(void)
     }
 #endif
     if (ret != -1) dprintf("r%02X ", ret&0xFF);
+
+  
     return ret;
 }
 
@@ -311,7 +313,6 @@ void ibmpc_interrupt_service_routine(void) {
                 while (!(clock_in()) && us) { wait_us(1); us--; }
                 while (  clock_in()  && us) { wait_us(1); us--; }
 #endif
-
                 if (us) {
                     // XT_IBM-error: read start(0) as 1
                     goto NEXT;
@@ -342,7 +343,6 @@ void ibmpc_interrupt_service_routine(void) {
                 while (!(clock_in()) && us) { wait_us(1); us--; }
                 while (  clock_in()  && us) { wait_us(1); us--; }
 #endif
-
                 if (us) {
                     // found stop bit: AT-midway - process the stop bit in next ISR
                     goto NEXT;

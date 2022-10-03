@@ -1,0 +1,22 @@
+#pragma once
+
+// place overrides here
+#define PERMISSIVE_HOLD
+#define IGNORE_MOD_TAP_INTERRUPT
+#undef  TAPPING_TERM
+#define TAPPING_TERM 175
+#define MASTER_RIGHT
+
+#ifdef RGBLIGHT_ENABLE
+#define RGBLIGHT_LAYERS
+#undef RGBLED_NUM
+#define RGBLIGHT_ANIMATIONS
+#define RGBLED_NUM 10
+#define RGBLIGHT_SPLIT
+#define RGBLIGHT_LIMIT_VAL 150
+#define RGBLIGHT_HUE_STEP 10
+#define RGBLIGHT_SAT_STEP 17
+#define RGBLIGHT_VAL_STEP 17
+#define RGB_DI_PIN B6
+#endif
+
