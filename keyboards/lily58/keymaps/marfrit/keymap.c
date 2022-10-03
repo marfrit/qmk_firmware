@@ -18,11 +18,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  *                   |      |      |      |/       /         \      \ |      |      |      |
  *                   `----------------------------'           '------''--------------------'
 */
-        ALL_T(KC_ESC), KC_1,             KC_2,  KC_3, KC_4,   KC_5,                    KC_6,             KC_7,  KC_8, KC_9, KC_0, KC_BSPC,
-        KC_TAB,        ____HIEAO_L1____,                                               ____HIEAO_R1____,                          KC_DEL,
-        KC_LSFT,       ____HIEAO_L2____,                                               ____HIEAO_R2____,                          KC_ENT,
-        KC_LGUI,       ____HIEAO_L3____,                      MUTE_TEAMS,  MUTE_SKYPE, ____HIEAO_R3____,                          KC_RSFT,
-                                         MO(3), MO(2), MO(1), KC_SPC,      KC_BSPC,    MO(1),            MO(2), MO(3)),
+        ALL_T(KC_ESC), ___NUMBER_L1____,                                               ___NUMBER_R1____, KC_BSPC,
+        KC_TAB,        ____HIEAO_L1____,                                               ____HIEAO_R1____, KC_DEL,
+        KC_LSFT,       ____HIEAO_L2____,                                               ____HIEAO_R2____, KC_ENT,
+        KC_LGUI,       ____HIEAO_L3____,                      MUTE_TEAMS,  MUTE_SKYPE, ____HIEAO_R3____, KC_RSFT,
+                                         MO(3), MO(2), MO(1), KC_SPC,      KC_BSPC,    MO(1), MO(2), MO(3)),
 	[_SYMBOLS] = LAYOUT_wrapper(
         KC_F11,  KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,                      KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F12,
         KC_TRNS, ___SYMBOL_L1____,                                               ___SYMBOL_R1____,                            KC_TRNS,
