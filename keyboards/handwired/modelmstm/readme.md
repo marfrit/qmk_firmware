@@ -31,4 +31,4 @@ Use
 
 As for parts, you will need the appropriate Triomate connectors to connect to the matrix sheets, a few wires, a 4.7kOhm pull down resistor and a perma proto board/ bread board.
 
-No variant with LEDs yet - but that's going to change soon.
+For an example with LEDs, check the configuration of the iso102 board.
