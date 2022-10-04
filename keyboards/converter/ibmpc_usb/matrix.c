@@ -18,8 +18,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <stdint.h>
 #include <stdbool.h>
-#include <avr/io.h>
-#include <util/delay.h>
 #include "print.h"
 #include "util.h"
 #include "debug.h"
@@ -51,9 +49,9 @@ static int8_t process_cs3(uint8_t code);
  * 17|         |
  *   +---------+
  */
-static uint8_t matrix[MATRIX_ROWS];
-#define ROW(code)      ((code>>3)&0x0F)
-#define COL(code)      (code&0x07)
+static matrix_row_t matrix[MATRIX_ROWS];
+#define ROW(code)      ((code>>4)&0x07)
+#define COL(code)      (code&0x0F)
 
 static int16_t read_wait(uint16_t wait_ms)
 {
@@ -141,6 +139,7 @@ uint8_t matrix_scan(void)
         READ_ID,
         SETUP,
         LOOP,
+        ERROR,
     } state = INIT;
     static uint16_t init_time;
 
@@ -152,7 +151,7 @@ uint8_t matrix_scan(void)
             // keyboard init again
             if (state == LOOP) {
                 xprintf("[RST] ");
-                state = INIT;
+                state = ERROR;
             }
         }
 
@@ -173,7 +172,7 @@ uint8_t matrix_scan(void)
             xprintf("\nERR:%02X ISR:%04X ", ibmpc_error, ibmpc_isr_debug);
             if (state == LOOP) {
                 xprintf("[CHG] ");
-                state = INIT;
+                state = ERROR;
             }
         }
 
@@ -189,16 +188,13 @@ uint8_t matrix_scan(void)
             current_protocol = 0;
 
             matrix_clear();
-            clear_keyboard();
 
             init_time = timer_read();
             state = WAIT_SETTLE;
+            ibmpc_host_enable();
             break;
         case WAIT_SETTLE:
-            // Reset when keyboad sends something
-            if (ibmpc_host_recv() != -1) {
-                state = AT_RESET;
-            }
+            while (ibmpc_host_recv() != -1) ; // read data
 
             // wait for keyboard to settle after plugin
             if (timer_elapsed(init_time) > 3000) {
@@ -295,9 +291,6 @@ uint8_t matrix_scan(void)
                 keyboard_kind = PC_AT;
             } else if (0xFFFD == keyboard_id) {     // Zenith Z-150 AT
                 keyboard_kind = PC_AT;
-            } else if (0x00FF == keyboard_id) {     // Mouse is not supported
-                xprintf("Mouse: not supported\n");
-                keyboard_kind = NONE;
             } else if (0xAB85 == keyboard_id || // IBM 122-key Model M, NCD N-97
                        0xAB86 == keyboard_id || // Cherry G80-2551, IBM 1397000
                        0xAB92 == keyboard_id) { // IBM 5576-001
@@ -393,24 +386,29 @@ uint8_t matrix_scan(void)
                     matrix_clear();
                     clear_keyboard();
 
-                    xprintf("\n[OVR] ");
+                    xprintf("\n[CLR] ");
                     break;
                 }
 
                 switch (keyboard_kind) {
                     case PC_XT:
-                        if (process_cs1(code) == -1) state = INIT;
+                        if (process_cs1(code) == -1) state = ERROR;
                         break;
                     case PC_AT:
-                        if (process_cs2(code) == -1) state = INIT;
+                        if (process_cs2(code) == -1) state = ERROR;
                         break;
                     case PC_TERMINAL:
-                        if (process_cs3(code) == -1) state = INIT;
+                        if (process_cs3(code) == -1) state = ERROR;
                         break;
                     default:
                         break;
                 }
             }
+            break;
+        case ERROR:
+            // something goes wrong
+            clear_keyboard();
+            state = INIT;
             break;
         default:
             break;
@@ -419,7 +417,7 @@ uint8_t matrix_scan(void)
 }
 
 inline
-uint8_t matrix_get_row(uint8_t row)
+matrix_row_t matrix_get_row(uint8_t row)
 {
     return matrix[row];
 }
@@ -524,27 +522,27 @@ bool matrix_has_ghost_in_row(uint8_t row)
 void led_set(uint8_t usb_led)
 {
     uint8_t ibmpc_led = 0;
-    if (usb_led &  (1<<USB_LED_SCROLL_LOCK)) {
-        DDRF |= (1<<7);
-        PORTF |= (1<<7);
-    } else {
-        DDRF &= ~(1<<7);
-        PORTF &= ~(1<<7);
-    }
-    if (usb_led &  (1<<USB_LED_NUM_LOCK)) {
-        DDRF |= (1<<6);
-        PORTF |= (1<<6);
-    } else {
-        DDRF &= ~(1<<6);
-        PORTF &= ~(1<<6);
-    }
-    if (usb_led &  (1<<USB_LED_CAPS_LOCK)) {
-        DDRF |= (1<<5);
-        PORTF |= (1<<5);
-    } else {
-        DDRF &= ~(1<<5);
-        PORTF &= ~(1<<5);
-    }
+//    if (usb_led &  (1<<USB_LED_SCROLL_LOCK)) {
+//        DDRF |= (1<<7);
+//        PORTF |= (1<<7);
+//    } else {
+//        DDRF &= ~(1<<7);
+//        PORTF &= ~(1<<7);
+//    }
+//    if (usb_led &  (1<<USB_LED_NUM_LOCK)) {
+//        DDRF |= (1<<6);
+//        PORTF |= (1<<6);
+//    } else {
+//        DDRF &= ~(1<<6);
+//        PORTF &= ~(1<<6);
+//    }
+//    if (usb_led &  (1<<USB_LED_CAPS_LOCK)) {
+//        DDRF |= (1<<5);
+//        PORTF |= (1<<5);
+//    } else {
+//        DDRF &= ~(1<<5);
+//        PORTF &= ~(1<<5);
+//    }
     // Sending before keyboard recognition may be harmful for XT keyboard
     if (keyboard_kind == NONE) return;
 
