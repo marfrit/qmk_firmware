@@ -45,6 +45,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "timer.h"
 #include "wait.h"
 #include "ringbuf.h"
+#include <util/atomic.h>
 
 #define WAIT(stat, us, err) do { \
     if (!wait_##stat(us)) { \
@@ -196,7 +197,7 @@ int16_t ibmpc_host_recv(void)
 #endif
     if (ret != -1) dprintf("r%02X ", ret&0xFF);
 
-  
+
     return ret;
 }
 
