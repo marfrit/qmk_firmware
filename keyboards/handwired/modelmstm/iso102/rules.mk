@@ -9,7 +9,6 @@ BOOTLOADER = stm32-dfu
 #   change yes to no to disable
 #
 KEYBOARD_SHARED_EP = yes
-SERIAL_DRIVER = yes
 
 BOOTMAGIC_ENABLE = yes      # Virtual DIP switch configuration
 MOUSEKEY_ENABLE = yes       # Mouse keys
