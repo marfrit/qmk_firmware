@@ -57,12 +57,12 @@ enum custom_keycodes {
 #define ___SYMBOL_R2____                                                 KC_QUES, KC_LPRN, KC_RPRN, KC_MINS, KC_COLN
 #define ___SYMBOL_R3____                                                 KC_PLUS, KC_PERC, KC_DQUO, KC_QUOT, KC_SCLN
 
-#define _NAVIGATION_L1__    KC_ESC,  KC_7, KC_8, KC_9, KC_TRNS
-#define _NAVIGATION_L2__    KC_TAB,  KC_4, KC_5, KC_6, KC_TRNS
-#define _NAVIGATION_L3__    KC_CAPS, KC_1, KC_2, KC_3, KC_0
-#define _NAVIGATION_R1__                                        KC_HOME, KC_PGUP, KC_UP,   KC_PGDN, KC_BSPC
-#define _NAVIGATION_R2__                                        KC_END,  KC_LEFT, KC_DOWN, KC_RGHT, KC_ENT
-#define _NAVIGATION_R3__                                        KC_UNDO, KC_CUT,  KC_COPY, KC_PSTE, KC_DEL
+#define _NAVIGATION_L1__    KC_ESC,  KC_7,         KC_8,         KC_9,        KC_TRNS
+#define _NAVIGATION_L2__    KC_TAB,  LALT_T(KC_4), LCTL_T(KC_5), LSFT_(KC_6), KC_TRNS
+#define _NAVIGATION_L3__    KC_CAPS, RALT_T(KC_1), KC_2,         KC_3,        KC_0
+#define _NAVIGATION_R1__                                                               KC_HOME, KC_PGUP, KC_UP,   KC_PGDN, KC_BSPC
+#define _NAVIGATION_R2__                                                               KC_END,  KC_LEFT, KC_DOWN, KC_RGHT, KC_ENT
+#define _NAVIGATION_R3__                                                               KC_UNDO, KC_CUT,  KC_COPY, KC_PSTE, KC_DEL
 
 #define _DIACRITICS_L1__    KC_TRNS, RALT(KC_Y), KC_TRNS,    KC_TRNS,    KC_TRNS
 #define _DIACRITICS_L2__    KC_TRNS, KC_TRNS,    RALT(KC_5), RALT(KC_Q), RALT(KC_P)
@@ -71,9 +71,9 @@ enum custom_keycodes {
 #define _DIACRITICS_R2__                                                             KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, RALT(KC_S)
 #define _DIACRITICS_R3__                                                             KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS
 
-#define __FUNCTION_L1___    KC_F1,   KC_F2,  KC_F3,  KC_F4,  RGB_TOG
-#define __FUNCTION_L2___    KC_F5,   KC_F6,  KC_F7,  KC_F8,  KC_TRNS
-#define __FUNCTION_L3___    KC_F9,   KC_F10, KC_F11, KC_F12, KC_TRNS
-#define __FUNCTION_R1___                                              RGB_SAI, RGB_HUI, RGB_VAI,  LALT(KC_F4), RESET
-#define __FUNCTION_R2___                                              RGB_SAD, RGB_HUD, RGB_VAD,  KC_TRNS,     KC_TRNS
-#define __FUNCTION_R3___                                              RGB_M_P, RGB_M_B, RGB_M_SW, KC_TRNS,     KC_TRNS
+#define __FUNCTION_L1___    ____FKEYS_B1____  RGB_TOG
+#define __FUNCTION_L2___    ____FKEYS_B2____  KC_TRNS
+#define __FUNCTION_L3___    ____FKEYS_B3____, KC_TRNS
+#define __FUNCTION_R1___                               RGB_SAI, RGB_HUI, RGB_VAI,  LALT(KC_F4), RESET
+#define __FUNCTION_R2___                               RGB_SAD, RGB_HUD, RGB_VAD,  KC_TRNS,     KC_TRNS
+#define __FUNCTION_R3___                               RGB_M_P, RGB_M_B, RGB_M_SW, KC_TRNS,     KC_TRNS

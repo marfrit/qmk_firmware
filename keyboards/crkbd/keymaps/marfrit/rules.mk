@@ -1,16 +1,4 @@
-
-# If you want to change the display of OLED, you need to change here
-SRC += ./logo_reader.c
-
-# enable OLED displays
-OLED_DRIVER_ENABLE = yes
-
-# enable media keys
-EXTRAKEY_ENABLE = no
-
-# enable LEDs
-RGB_MATRIX_ENABLE = yes
-
-# using elite-c controllers
-#BOOTLOADER = qmk-dfu
-RGBLIGHT_ENABLE = no
+RGBLIGHT_ENABLE = yes    # Enable WS2812 RGB underlight.
+OLED_ENABLE     = yes
+OLED_DRIVER     = SSD1306
+LTO_ENABLE      = yes
