@@ -11,21 +11,21 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     KC_LSFT,          ____HIEAO_L3____, ____HIEAO_R3____,                   KC_RSFT,          KC_UP,            _____NUMR4______,
                                 _____CASPC______,                                    KC_LEFT, KC_DOWN, KC_RGHT, _____NUMR5______),
 	[_SYMBOLS] = LAYOUT_terminal102_wrapper(
-    KC_ESC,                     ____FRW1_12_____,                                    _____PRTETC_____,
+    QK_BOOT,                    ____FRW1_12_____,                                    _____PRTETC_____,
     ALL_T(KC_GRV),    ___NUMBER_L1____, ___NUMBER_R1____, KC_MINS, KC_EQL,  KC_BSPC, ____INSHMPU_____,          _____NUMR1______,
     KC_TAB,           ___SYMBOL_L1____, ___SYMBOL_R1____, KC_LBRC, KC_RBRC, KC_BSLS, ____DELENPD_____,          _____NUMR2T_____,
     KC_CAPS,          ___SYMBOL_L2____, ___SYMBOL_R2____, KC_QUOT,          KC_ENT,                             _____NUMR3T_____,
     KC_LSFT,          ___SYMBOL_L3____, ___SYMBOL_R3____,                   KC_RSFT,          KC_UP,            _____NUMR4______,
                                 _____CASPC______,                                    KC_LEFT, KC_DOWN, KC_RGHT, _____NUMR5______),
 	[_NAVIGATION] = LAYOUT_terminal102_wrapper(
-    KC_ESC,                     ____FRW1_12_____,                                    _____PRTETC_____,
+    EE_CLR,                     ____FRW1_12_____,                                    _____PRTETC_____,
     ALL_T(KC_GRV),    ___NUMBER_L1____, ___NUMBER_R1____, KC_MINS, KC_EQL,  KC_BSPC, ____INSHMPU_____,          _____NUMR1______,
     KC_TAB,           _NAVIGATION_L1__, _NAVIGATION_R1__, KC_LBRC, KC_RBRC, KC_BSLS, ____DELENPD_____,          _____NUMR2T_____,
     KC_CAPS,          _NAVIGATION_L2__, _NAVIGATION_R2__, KC_QUOT,          KC_ENT,                             _____NUMR3T_____,
     KC_LSFT,          _NAVIGATION_L3__, _NAVIGATION_R3__,                   KC_RSFT,          KC_UP,            _____NUMR4______,
                                 _____CASPC______,                                    KC_LEFT, KC_DOWN, KC_RGHT, _____NUMR5______),
 	[_DIACRITICS] = LAYOUT_terminal102_wrapper(
-    KC_ESC,                     ____FRW1_12_____,                                    _____PRTETC_____,
+    QK_MAKE,                    ____FRW1_12_____,                                    _____PRTETC_____,
     ALL_T(KC_GRV),    ___NUMBER_L1____, ___NUMBER_R1____, KC_MINS, KC_EQL,  KC_BSPC, ____INSHMPU_____,          _____NUMR1______,
     KC_TAB,           _DIACRITICS_L1__, _DIACRITICS_R1__, KC_LBRC, KC_RBRC, KC_BSLS, ____DELENPD_____,          _____NUMR2T_____,
     KC_CAPS,          _DIACRITICS_L2__, _DIACRITICS_R2__, KC_QUOT,          KC_ENT,                             _____NUMR3T_____,
@@ -40,3 +40,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                 _____CASPC______,                                    KC_LEFT, KC_DOWN, KC_RGHT, _____NUMR5______),
 };
 
+void keyboard_post_init_user(void) {
+  // Customise these values to desired behaviour
+  debug_enable=true;
+  debug_matrix=true;
+  //debug_keyboard=true;
+  //debug_mouse=true;
+}
