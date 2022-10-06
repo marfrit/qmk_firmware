@@ -24,14 +24,16 @@ enum custom_keycodes {
 #define ___NUMBER_L1____    KC_1, KC_2, KC_3, KC_4, KC_5
 #define ___NUMBER_R1____                                  KC_6, KC_7, KC_8, KC_9, KC_0
 
+#define ______CLMC______    KC_LCTL
 #define _____PRTETC_____    KC_PSCR, RESET,  KC_PAUS
 #define ____INSHMPU_____    KC_INS, KC_HOME, KC_PGUP
 #define ____DELENPD_____    KC_DEL, KC_END,  KC_PGDN
-#define _____CASPC______    KC_LCTL, KC_LALT, KC_SPC, KC_RALT, KC_RCTL
+#define _____CASPC______    KC_CAPS, KC_LALT, KC_SPC, KC_RALT, KC_RCTL
 
 #define _____NUMR1______    KC_NLCK, KC_PSLS, KC_PAST, KC_PMNS
-#define _____NUMR2T_____    KC_P7,   KC_P8,   KC_P9,   KC_PPLS
+#define _____NUMR2______    KC_P7,   KC_P8,   KC_P9,   KC_PPLS
 #define _____NUMR3T_____    KC_P4,   KC_P5,   KC_P6,   KC_PCMM
+#define _____NUMR3______    KC_P4,   KC_P5,   KC_P6
 #define _____NUMR4______    KC_P1,   KC_P2,   KC_P3,   KC_PENT
 #define _____NUMR5______    KC_P0,            KC_PDOT
 
