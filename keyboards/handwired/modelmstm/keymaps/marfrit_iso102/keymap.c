@@ -4,7 +4,7 @@
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 	[_HIEAO] = LAYOUT_iso102_wrapper(
-    KC_ESC,                     ____FRW1_12_____,                                    _____PRTETC_____,
+    KC_ESC,                     ____FRW1_12_____,                                    KC_PSCR, RESET, MUTE_TEAMS,
     ALL_T(KC_GRV),    ___NUMBER_L1____, ___NUMBER_R1____, KC_MINS, KC_EQL,  KC_BSPC, ____INSHMPU_____,          _____NUMR1______,
     KC_TAB,           ____HIEAO_L1____, ____HIEAO_R1____, KC_LBRC, KC_RBRC,          ____DELENPD_____,          _____NUMR2______,
     ______CLMC______, ____HIEAO_L2____, ____HIEAO_R2____, KC_QUOT, KC_NUHS, KC_ENT,                             _____NUMR3______,

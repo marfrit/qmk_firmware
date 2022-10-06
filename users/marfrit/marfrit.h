@@ -42,13 +42,13 @@ enum custom_keycodes {
 #define ____FKEYS_B3____    KC_F9, KC_F10, KC_F11, KC_F12
 #define ____FRW1_12_____    ____FKEYS_B1____, ____FKEYS_B2____, ____FKEYS_B3____
 
-#define ____HIEAO_L1____    KC_K, KC_U,         KC_Q,          DIAC(KC_DOT),  KC_J
+#define ____HIEAO_L1____    KC_K,         KC_U,         KC_Q,          DIAC(KC_DOT),  KC_J
 #define ____HIEAO_L2____    LGUI_T(KC_H), LALT_T(KC_I), LCTL_T(KC_E),  LSFT_T(KC_A),  KC_O
-#define ____HIEAO_L3____    KC_X, RALT_T(KC_Y), FUNC(KC_SCLN), SYMB(KC_COMM), NAVI(KC_SLSH)
-#define ____HIEAO_L3_FB_    KC_X, RALT_T(KC_Y), FUNC(KC_SCLN), SYMB(KC_COMM), NAVI(KC_SPC)
-#define ____HIEAO_R1____                                                                     KC_V,       DIAC(KC_G),   KC_C,         KC_L,         KC_F
-#define ____HIEAO_R2____                                                                     KC_D,       RSFT_T(KC_T), RCTL_T(KC_R), LALT_T(KC_N), RGUI_T(KC_S)
-#define ____HIEAO_R3____                                                                     NAVI(KC_B), SYMB(KC_P),   FUNC(KC_W),   RALT_T(KC_M), KC_Z
+#define ____HIEAO_L3____    KC_X,         RALT_T(KC_Y), FUNC(KC_SCLN), SYMB(KC_COMM), NAVI(KC_SLSH)
+#define ____HIEAO_L3_FB_    KC_X,         RALT_T(KC_Y), FUNC(KC_SCLN), SYMB(KC_COMM), NAVI(KC_SPC)
+#define ____HIEAO_R1____                                                                            KC_V,       DIAC(KC_G),   KC_C,         KC_L,         KC_F
+#define ____HIEAO_R2____                                                                            KC_D,       RSFT_T(KC_T), RCTL_T(KC_R), LALT_T(KC_N), RGUI_T(KC_S)
+#define ____HIEAO_R3____                                                                            NAVI(KC_B), SYMB(KC_P),   FUNC(KC_W),   RALT_T(KC_M), KC_Z
 
 #define ___SYMBOL_L1____    KC_AT,   KC_UNDS, KC_LBRC, KC_RBRC, KC_CIRC
 #define ___SYMBOL_L2____    KC_BSLS, KC_SLSH, KC_LCBR, KC_RCBR, KC_ASTR
