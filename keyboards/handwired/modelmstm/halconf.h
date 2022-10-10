@@ -21,8 +21,7 @@
 
 #pragma once
 
-#define HAL_USE_I2C FALSE
-#define HAL_USE_PWM FALSE
+#define SERIAL_USB_BUFFERS_SIZE 256
 
 #include_next <halconf.h>
 

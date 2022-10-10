@@ -29,6 +29,6 @@ Use
 * C14, and 
 * C15 as input only.
 
-As for parts, you will need the appropriate Triomate connectors to connect to the matrix sheets, a few wires, a 4.7kOhm pull down resistor and a perma proto board/ bread board.
+As for parts, you will need the appropriate Triomate connectors to connect to the matrix sheets, a few wires, a 4.7kOhm pull down resistor (B2), a 22kOhm pull up resistor (A10) and a perma proto board/ bread board.
 
 For an example with LEDs, check the configuration of the iso102 board.
