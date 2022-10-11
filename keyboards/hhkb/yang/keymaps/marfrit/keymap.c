@@ -19,30 +19,6 @@
 
 #define LAYOUT_60_hhkb_wrapper(...) LAYOUT_60_hhkb(__VA_ARGS__)
 
-enum unicode_names {
-    KC_AU,
-    KC_aU,
-    KC_OU,
-    KC_oU,
-    KC_UU,
-    KC_uU,
-    KC_SS,
-    KC_sS,
-    KC_EUR
-};
-
-const uint32_t PROGMEM unicode_map[] = {
-    [KC_AU]  = 0xC4,  // Ä
-    [KC_aU]  = 0xE4,  // ä
-    [KC_OU]  = 0xD6,
-    [KC_oU]  = 0xF6,
-    [KC_UU]  = 0xDC,
-    [KC_uU]  = 0xFC,
-    [KC_SS]  = 0x1E9E,
-    [KC_sS]  = 0xDF,
-    [KC_EUR] = 0x20AC
-};
-
 enum custom_layers {
     BASE,
     HHKB,
