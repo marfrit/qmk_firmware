@@ -39,11 +39,3 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     KC_LSFT, KC_NUBS, __FUNCTION_L3___, __FUNCTION_R3___,                   KC_RSFT,          KC_UP,            _____NUMR4______,
                                 _____CASPC______,                                    KC_LEFT, KC_DOWN, KC_RGHT, _____NUMR5______),
 };
-
-void keyboard_post_init_user(void) {
-  // Customise these values to desired behaviour
-  debug_enable=true;
-  debug_matrix=true;
-  //debug_keyboard=true;
-  //debug_mouse=true;
-}
