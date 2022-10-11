@@ -9,6 +9,7 @@ enum layers {
   _NAVIGATION,
   _DIACRITICS,
   _FUNCTION,
+  _HHKB,
 };
 
 enum custom_keycodes {
