@@ -2,11 +2,7 @@
 
 #define LAYOUT_ansi_hhkb_split_shift_split_backspace_wrapper(...) LAYOUT_ansi_hhkb_split_shift_split_backspace(__VA_ARGS__)
 
-//18
-//17
-//16
-//17
-//10
+//18 17 16 17 10
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [_HIEAO] = LAYOUT_ansi_hhkb_split_shift_split_backspace_wrapper(
