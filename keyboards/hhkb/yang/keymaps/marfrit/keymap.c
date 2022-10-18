@@ -1,5 +1,4 @@
-/*  -*-  eval: (turn-on-orgtbl); -*-
- * default HHKB Layout
+/* marfrit HHKB Layout
  *
  * Copyright 2022 Markus Fritsche <fritsche.markus@gmail.com>
  *
@@ -16,31 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include QMK_KEYBOARD_H
+#include "marfrit.h"
 
-enum unicode_names {
-    KC_AU,
-    KC_aU,
-    KC_OU,
-    KC_oU,
-    KC_UU,
-    KC_uU,
-    KC_SS,
-    KC_sS,
-    KC_EUR
-};
-
-const uint32_t PROGMEM unicode_map[] = {
-    [KC_AU]  = 0xC4,  // Ä
-    [KC_aU]  = 0xE4,  // ä
-    [KC_OU]  = 0xD6,
-    [KC_oU]  = 0xF6,
-    [KC_UU]  = 0xDC,
-    [KC_uU]  = 0xFC,
-    [KC_SS]  = 0x1E9E,
-    [KC_sS]  = 0xDF,
-    [KC_EUR] = 0x20AC
-};
+#define LAYOUT_60_hhkb_wrapper(...) LAYOUT_60_hhkb(__VA_ARGS__)
 
 enum custom_layers {
     BASE,
@@ -68,11 +45,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
             |------+------+-----------------------+------+------|
     */
 
-    [BASE] = LAYOUT_60_hhkb( //  default layer
-        KC_ESC, KC_1, KC_2, KC_3, KC_4, KC_5, KC_6, KC_7, KC_8, KC_9, KC_0, KC_MINS, KC_EQL, KC_BSLS, KC_GRV,
-        KC_TAB, KC_K, KC_U, KC_Q, LT(ADJUST, KC_DOT), KC_J, KC_V, LT(ADJUST, KC_G), KC_C, KC_L, KC_F, KC_LBRC, KC_RBRC, KC_BSPC,
-        KC_LCTL, KC_H, LALT_T(KC_I), LCTL_T(KC_E), LSFT_T(KC_A), KC_O, KC_D, RSFT_T(KC_T), RCTL_T(KC_R), LALT_T(KC_N), KC_S, KC_QUOT, KC_ENT,
-        KC_LSFT, KC_X, RALT_T(KC_Y), KC_SCLN, LT(LOWER,KC_COMM), LT(RAISE,KC_SLSH), LT(RAISE,KC_B), LT(LOWER,KC_P), KC_W, RALT_T(KC_M), KC_Z, KC_RSFT, MO(HHKB),
+    [_HIEAO] = LAYOUT_60_hhkb_wrapper( //  default layer
+        KC_ESC,  ___NUMBER_L1____, ___NUMBER_R1____, KC_MINS, KC_EQL, KC_BSLS, KC_GRV,
+        KC_TAB,  ____HIEAO_L1____, ____HIEAO_R1____, KC_LBRC, KC_RBRC, KC_BSPC,
+        KC_LCTL, ____HIEAO_L2____, ____HIEAO_R2____, KC_QUOT, KC_ENT,
+        KC_LSFT, ____HIEAO_L3____, ____HIEAO_R3____, KC_RSFT, MO(_HHKB),
         KC_LALT, KC_LGUI, /*        */ KC_SPC, KC_RGUI, KC_RALT),
 
     /* Layer HHKB: HHKB mode (HHKB Fn)
@@ -92,32 +69,39 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
      */
 
-    [HHKB] = LAYOUT_60_hhkb(
+    [_HHKB] = LAYOUT_60_hhkb_wrapper(
         KC_PWR, KC_F1, KC_F2, KC_F3, KC_F4, KC_F5, KC_F6, KC_F7, KC_F8, KC_F9, KC_F10, KC_F11, KC_F12, KC_INS, KC_DEL,
         KC_CAPS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_PSCR, KC_SLCK, KC_PAUS, KC_UP, KC_TRNS, KC_BSPC,
         KC_TRNS, KC_VOLD, KC_VOLU, KC_MUTE, KC_TRNS, KC_TRNS, KC_PAST, KC_PSLS, KC_HOME, KC_PGUP, KC_LEFT, KC_RGHT, KC_PENT,
         KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, RESET,   KC_PPLS, KC_PMNS, KC_END, KC_PGDN, KC_DOWN, KC_TRNS, KC_TRNS,
         KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS),
 
-    [LOWER] = LAYOUT_60_hhkb(
+    [_SYMBOLS] = LAYOUT_60_hhkb_wrapper(
         KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
-        KC_TRNS, KC_AT, KC_UNDS, KC_LBRC, KC_RBRC, KC_CIRC, KC_EXLM, KC_LT, KC_GT, KC_EQL, KC_AMPR, KC_TRNS, KC_TRNS, KC_TRNS,
-        KC_TRNS, KC_BSLS, KC_SLSH, KC_LCBR, KC_RCBR, KC_ASTR, KC_QUES, KC_LPRN, KC_RPRN, KC_MINS, KC_COLN, KC_TRNS, KC_TRNS,
-        KC_TRNS, KC_HASH, KC_DLR, KC_PIPE, KC_TILD, KC_GRV, KC_PLUS, KC_PERC, KC_DQUO, KC_QUOT, KC_SCLN, KC_TRNS, KC_TRNS,
+        KC_TRNS, ___SYMBOL_L1____, ___SYMBOL_R1____, KC_TRNS, KC_TRNS, KC_TRNS,
+        KC_TRNS, ___SYMBOL_L2____, ___SYMBOL_R2____, KC_TRNS, KC_TRNS,
+        KC_TRNS, ___SYMBOL_L3____, ___SYMBOL_R3____, KC_TRNS, KC_TRNS,
         KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS),
 
-    [RAISE] = LAYOUT_60_hhkb(
+    [_NAVIGATION] = LAYOUT_60_hhkb_wrapper(
         KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
-        KC_TRNS, KC_ESC, KC_7, KC_8, KC_9, KC_TRNS, KC_HOME, KC_PGUP, KC_UP, KC_PGDN, KC_BSPC, KC_TRNS, KC_TRNS, KC_TRNS,
-        KC_TRNS, KC_TAB, KC_4, KC_5, KC_6, KC_TRNS, KC_END, KC_LEFT, KC_DOWN, KC_RGHT, KC_ENT, KC_TRNS, KC_TRNS,
-        KC_TRNS, KC_CAPS, KC_1, KC_2, KC_3, KC_0, KC_UNDO, KC_CUT, KC_COPY, KC_PSTE, KC_DEL, KC_TRNS, KC_TRNS,
+        KC_TRNS, _NAVIGATION_L1__, _NAVIGATION_R1__, KC_TRNS, KC_TRNS, KC_TRNS,
+        KC_TRNS, _NAVIGATION_L2__, _NAVIGATION_R2__, KC_TRNS, KC_TRNS,
+        KC_TRNS, _NAVIGATION_L3__, _NAVIGATION_R3__, KC_TRNS, KC_TRNS,
         KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS),
 
-    [ADJUST] = LAYOUT_60_hhkb(
-        KC_TRNS, UC_M_LN, UC_M_MA, UC_M_WI, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
-        KC_TRNS, KC_TRNS, XP(KC_uU, KC_UU), KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
-        KC_TRNS, KC_TRNS, KC_TRNS, X(KC_EUR), XP(KC_aU, KC_AU), XP(KC_oU, KC_OU), KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, XP(KC_sS, KC_SS), KC_TRNS, KC_TRNS,
-        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+    [_DIACRITICS] = LAYOUT_60_hhkb_wrapper(
+        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+        KC_TRNS, _DIACRITICS_L1__, _DIACRITICS_R1__, KC_TRNS, KC_TRNS, KC_TRNS,
+        KC_TRNS, _DIACRITICS_L2__, _DIACRITICS_R2__, KC_TRNS, KC_TRNS,
+        KC_TRNS, _DIACRITICS_L3__, _DIACRITICS_R3__, KC_TRNS, KC_TRNS,
+        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS),
+
+    [_FUNCTION] = LAYOUT_60_hhkb_wrapper(
+        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+        KC_TRNS, __FUNCTION_L1___, __FUNCTION_R1___, KC_TRNS, KC_TRNS, KC_TRNS,
+        KC_TRNS, __FUNCTION_L2___, __FUNCTION_R2___, KC_TRNS, KC_TRNS,
+        KC_TRNS, __FUNCTION_L3___, __FUNCTION_R3___, KC_TRNS, KC_TRNS,
         KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS),
 
     };

@@ -18,4 +18,3 @@ bool matrix_has_ghost_in_row(uint8_t row)
     return false;
 }
 #endif
-

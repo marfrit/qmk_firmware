@@ -4,7 +4,7 @@
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 	[_HIEAO] = LAYOUT_iso102_wrapper(
-    KC_ESC,                     ____FRW1_12_____,                                    KC_PSCR, RESET, MUTE_TEAMS,
+    KC_ESC,                     ____FRW1_12_____,                                    KC_PSCR, QK_BOOT, MUTE_TEAMS,
     ALL_T(KC_GRV),    ___NUMBER_L1____, ___NUMBER_R1____, KC_MINS, KC_EQL,  KC_BSPC, ____INSHMPU_____,          _____NUMR1______,
     KC_TAB,           ____HIEAO_L1____, ____HIEAO_R1____, KC_LBRC, KC_RBRC,          ____DELENPD_____,          _____NUMR2______,
     ______CLMC______, ____HIEAO_L2____, ____HIEAO_R2____, KC_QUOT, KC_NUHS, KC_ENT,                             _____NUMR3______,
@@ -39,11 +39,3 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     KC_LSFT, KC_NUBS, __FUNCTION_L3___, __FUNCTION_R3___,                   KC_RSFT,          KC_UP,            _____NUMR4______,
                                 _____CASPC______,                                    KC_LEFT, KC_DOWN, KC_RGHT, _____NUMR5______),
 };
-
-void keyboard_post_init_user(void) {
-  // Customise these values to desired behaviour
-  debug_enable=true;
-  debug_matrix=true;
-  //debug_keyboard=true;
-  //debug_mouse=true;
-}
