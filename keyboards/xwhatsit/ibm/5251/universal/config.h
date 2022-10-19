@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define DEVICE_VER 0x0001
 #define MANUFACTURER Tom Wong-Cornall/Purdea Andrei/kmnov2017/listofoptions
 #define PRODUCT IBM 5251
-#define DESCRIPTION QMK firmware for the IBM 5251 keyboard using a 'universal' xwhatsit controller PCB
+//#define DESCRIPTION QMK firmware for the IBM 5251 keyboard using a 'universal' xwhatsit controller PCB
 
 /* key matrix size */
 #define MATRIX_ROWS 4
@@ -192,10 +192,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //#define NO_ACTION_ONESHOT
 
 /* disable these deprecated features by default */
-#ifndef LINK_TIME_OPTIMIZATION_ENABLE
-  #define NO_ACTION_MACRO
-  #define NO_ACTION_FUNCTION
-#endif
+//#ifndef LINK_TIME_OPTIMIZATION_ENABLE
+//  #define NO_ACTION_MACRO
+//  #define NO_ACTION_FUNCTION
+//#endif
 /*
  * MIDI options
  */
