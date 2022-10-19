@@ -6,13 +6,7 @@
  * edit it directly.
  */
 
-//12
-//12
-//23
-//23
-//20
-//22
-//10
+//12 12 23 23 20 22 10
 
 #define LAYOUT_terminal122_wrapper(...) LAYOUT_terminal122(__VA_ARGS__)
 
@@ -20,58 +14,58 @@
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     // PC/3270 layout: PC legends (blue)
     [_HIEAO] = LAYOUT_terminal122_wrapper(
-                            KC_F13,  KC_F14,  KC_F15,  KC_F16,  KC_F17,  KC_F18,  KC_F19,  KC_F20,  KC_F21,  KC_F22,   KC_F23,  KC_F24,
-                            KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,   KC_F11,  KC_F12,
+                                                                             ____FRW12_24____,
+                                                                             ____FRW1_12_____,
 
-        KC_NO,   KC_NO,     KC_GRV,  ___NUMBER_L1____,                            ___NUMBER_R1____,                             KC_MINS, KC_EQL,  KC_BSPC, KC_INS,  KC_HOME, KC_PGUP,    KC_NLCK, KC_SLCK, KC_PAST, KC_PSLS,
-        QK_BOOT, KC_PAUS,   KC_TAB,  ____HIEAO_L1____,                            ____HIEAO_R1____,                    KC_LBRC, KC_RBRC,                   KC_DEL,  KC_END,  KC_PGDN,    KC_P7,   KC_P8,   KC_P9,   KC_PPLS,
-        KC_NO,   KC_NO,     KC_CAPS, ____HIEAO_L2____,                            ____HIEAO_R2____,                    KC_QUOT, KC_NUHS, KC_ENT,                    KC_UP,               KC_P4,   KC_P5,   KC_P6,   KC_PMNS,
-        KC_PSCR, KC_NO,     KC_LSFT, KC_NUBS, ____HIEAO_L3____,                   ____HIEAO_R3____,                                      KC_RSFT,          KC_LEFT, KC_HOME, KC_RIGHT,   KC_P1,   KC_P2,   KC_P3,   KC_PENT,
-        MO(2),   KC_LGUI,   KC_LCTL, KC_LALT,                                     KC_SPC,                                       KC_RALT, KC_RCTL,                   KC_DOWN,             KC_P0,            KC_PDOT
+        KC_PSCR,         KC_ESC,         KC_GRV,           ___NUMBER_L1____, ___NUMBER_R1____,  KC_MINS, KC_EQL,  KC_BSPC,      ____INSHMPU_____,        _____NUMR1______,
+        QK_BOOT,         KC_PAUS,        KC_TAB,           ____HIEAO_L1____, ____HIEAO_R1____,           KC_LBRC, KC_RBRC,      ____DELENPD_____,        _____NUMR2______,
+        EEP_RST,         TG(_SYMBOLS),   ______CLMC______, ____HIEAO_L2____, ____HIEAO_R2____,  KC_QUOT, KC_NUHS, KC_ENT,            KC_UP,              _____NUMR3T_____,
+        TG(_NAVIGATION), TG(_FUNCTION),  KC_LSFT, KC_NUBS, ____HIEAO_L3____, ____HIEAO_R3____,                    KC_RSFT,  KC_LEFT, KC_HOME, KC_RIGHT,  _____NUMR4______,
+        KC_APP,          KC_LGUI,                                    _____CASPC______,                                               KC_DOWN,            _____NUMR5______
     ),
 
     [_SYMBOLS] = LAYOUT_terminal122_wrapper(
-                            KC_F13,  KC_F14,  KC_F15,  KC_F16,  KC_F17,  KC_F18,  KC_F19,  KC_F20,  KC_F21,  KC_F22,   KC_F23,  KC_F24,
-                            KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,   KC_F11,  KC_F12,
+                                                                             ____FRW12_24____,
+                                                                             ____FRW1_12_____,
 
-        KC_NO,   KC_NO,     KC_GRV,  ___NUMBER_L1____,                            ___NUMBER_R1____,                             KC_MINS, KC_EQL,  KC_BSPC, KC_INS,  KC_HOME, KC_PGUP,             KC_NLCK, KC_SLCK, KC_PAST, KC_PSLS,
-        QK_BOOT, KC_PAUS,   KC_TAB,  ____HIEAO_L1____,                            ____HIEAO_R1____,                    KC_LBRC, KC_RBRC,                   KC_DEL,  KC_END,  KC_PGDN,             KC_P7,   KC_P8,   KC_P9,   KC_PPLS,
-        KC_NO,   KC_NO,     KC_CAPS, ____HIEAO_L2____,                            ____HIEAO_R2____,                    KC_QUOT, KC_NUHS, KC_ENT,                    KC_UP,               KC_P4,   KC_P5,   KC_P6,   KC_PMNS,
-        KC_PSCR, KC_NO,     KC_LSFT, KC_NUBS, ____HIEAO_L3____,                   ____HIEAO_R3____,                                      KC_RSFT,          KC_LEFT, KC_HOME, KC_RIGHT,   KC_P1,   KC_P2,   KC_P3,   KC_PENT,
-        MO(2),   KC_LGUI,   KC_LCTL, KC_LALT,                                     KC_SPC,                                       KC_RALT, KC_RCTL,                   KC_DOWN,             KC_P0,            KC_PDOT
+        KC_PSCR,         KC_ESC,         KC_GRV,           ___NUMBER_L1____, ___NUMBER_R1____,  KC_MINS, KC_EQL,  KC_BSPC,      ____INSHMPU_____,        _____NUMR1______,
+        QK_BOOT,         KC_PAUS,        KC_TAB,           ___SYMBOL_L1____, ___SYMBOL_R1____,           KC_LBRC, KC_RBRC,      ____DELENPD_____,        _____NUMR2______,
+        EEP_RST,         TG(_SYMBOLS),   ______CLMC______, ___SYMBOL_L2____, ___SYMBOL_R2____,  KC_QUOT, KC_NUHS, KC_ENT,            KC_UP,              _____NUMR3T_____,
+        TG(_NAVIGATION), TG(_FUNCTION),  KC_LSFT, KC_NUBS, ___SYMBOL_L3____, ___SYMBOL_R3____,                    KC_RSFT,  KC_LEFT, KC_HOME, KC_RIGHT,  _____NUMR4______,
+        KC_APP,          KC_LGUI,                                    _____CASPC______,                                               KC_DOWN,            _____NUMR5______
     ),
 
     [_NAVIGATION] = LAYOUT_terminal122_wrapper(
-                           KC_F13,  KC_F14,  KC_F15,  KC_F16,  KC_F17,  KC_F18,  KC_F19,  KC_F20,  KC_F21,  KC_F22,   KC_F23,  KC_F24,
-                           KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,   KC_F11,  KC_F12,
+                                                                             ____FRW12_24____,
+                                                                             ____FRW1_12_____,
 
-        KC_NO,   KC_NO,    KC_GRV,  ___NUMBER_L1____,                            ___NUMBER_R1____,                    KC_MINS, KC_EQL,  KC_BSPC,  KC_INS,  KC_HOME, KC_PGUP,   KC_NLCK, KC_SLCK, KC_PAST, KC_PSLS,
-        QK_BOOT, KC_PAUS,  KC_TAB,  ____HIEAO_L1____,                            ____HIEAO_R1____,                    KC_LBRC, KC_RBRC,           KC_DEL,  KC_END,  KC_PGDN,   KC_P7,   KC_P8,   KC_P9,   KC_PPLS,
-        KC_NO,   KC_NO,    KC_CAPS, ____HIEAO_L2____,                            ____HIEAO_R2____,                    KC_QUOT, KC_NUHS, KC_ENT,            KC_UP,              KC_P4,   KC_P5,   KC_P6,   KC_PMNS,
-        KC_PSCR, KC_NO,    KC_LSFT, KC_NUBS, ____HIEAO_L3____,                   ____HIEAO_R3____,                                      KC_RSFT,  KC_LEFT, KC_HOME, KC_RIGHT,  KC_P1,   KC_P2,   KC_P3,   KC_PENT,
-        MO(2),   KC_LGUI,  KC_LCTL,          KC_LALT,               KC_SPC,                                                    KC_RALT, KC_RCTL,           KC_DOWN,                     KC_P0,   KC_PDOT
+        KC_PSCR,         KC_ESC,         KC_GRV,           ___NUMBER_L1____, ___NUMBER_R1____,  KC_MINS, KC_EQL,  KC_BSPC,      ____INSHMPU_____,        _____NUMR1______,
+        QK_BOOT,         KC_PAUS,        KC_TAB,           _NAVIGATION_L1__, _NAVIGATION_R1__,           KC_LBRC, KC_RBRC,      ____DELENPD_____,        _____NUMR2______,
+        EEP_RST,         TG(_SYMBOLS),   ______CLMC______, _NAVIGATION_L2__, _NAVIGATION_R2__,  KC_QUOT, KC_NUHS, KC_ENT,            KC_UP,              _____NUMR3T_____,
+        TG(_NAVIGATION), TG(_FUNCTION),  KC_LSFT, KC_NUBS, _NAVIGATION_L3__, _NAVIGATION_R3__,                    KC_RSFT,  KC_LEFT, KC_HOME, KC_RIGHT,  _____NUMR4______,
+        KC_APP,          KC_LGUI,                                    _____CASPC______,                                               KC_DOWN,            _____NUMR5______
     ),
 
     [_DIACRITICS] = LAYOUT_terminal122_wrapper(
-                            KC_F13,  KC_F14,  KC_F15,  KC_F16,  KC_F17,  KC_F18,  KC_F19,  KC_F20,  KC_F21,  KC_F22,   KC_F23,  KC_F24,
-                            KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,   KC_F11,  KC_F12,
+                                                                             ____FRW12_24____,
+                                                                             ____FRW1_12_____,
 
-        KC_NO,   KC_NO,     KC_GRV,  ___NUMBER_L1____,                            ___NUMBER_R1____,                             KC_MINS, KC_EQL,  KC_BSPC, KC_INS,  KC_HOME, KC_PGUP,             KC_NLCK, KC_SLCK, KC_PAST, KC_PSLS,
-        QK_BOOT, KC_PAUS,   KC_TAB,  ____HIEAO_L1____,                            ____HIEAO_R1____,                    KC_LBRC, KC_RBRC,                   KC_DEL,  KC_END,  KC_PGDN,             KC_P7,   KC_P8,   KC_P9,   KC_PPLS,
-        KC_NO,   KC_NO,     KC_CAPS, ____HIEAO_L2____,                            ____HIEAO_R2____,                    KC_QUOT, KC_NUHS, KC_ENT,                    KC_UP,               KC_P4,   KC_P5,   KC_P6,   KC_PMNS,
-        KC_PSCR, KC_NO,     KC_LSFT, KC_NUBS, ____HIEAO_L3____,                   ____HIEAO_R3____,                                      KC_RSFT,          KC_LEFT, KC_HOME, KC_RIGHT,   KC_P1,   KC_P2,   KC_P3,   KC_PENT,
-        MO(2),   KC_LGUI,   KC_LCTL, KC_LALT,                                     KC_SPC,                                       KC_RALT, KC_RCTL,                   KC_DOWN,             KC_P0,            KC_PDOT
+        KC_PSCR,         KC_ESC,         KC_GRV,           ___NUMBER_L1____, ___NUMBER_R1____,  KC_MINS, KC_EQL,  KC_BSPC,      ____INSHMPU_____,        _____NUMR1______,
+        QK_BOOT,         KC_PAUS,        KC_TAB,           _DIACRITICS_L1__, _DIACRITICS_R1__,           KC_LBRC, KC_RBRC,      ____DELENPD_____,        _____NUMR2______,
+        EEP_RST,         TG(_SYMBOLS),   ______CLMC______, _DIACRITICS_L2__, _DIACRITICS_R2__,  KC_QUOT, KC_NUHS, KC_ENT,            KC_UP,              _____NUMR3T_____,
+        TG(_NAVIGATION), TG(_FUNCTION),  KC_LSFT, KC_NUBS, _DIACRITICS_L3__, _DIACRITICS_R3__,                    KC_RSFT,  KC_LEFT, KC_HOME, KC_RIGHT,  _____NUMR4______,
+        KC_APP,          KC_LGUI,                                    _____CASPC______,                                               KC_DOWN,            _____NUMR5______
     ),
 
     [_FUNCTION] = LAYOUT_terminal122_wrapper(
-                            KC_F13,  KC_F14,  KC_F15,  KC_F16,  KC_F17,  KC_F18,  KC_F19,  KC_F20,  KC_F21,  KC_F22,   KC_F23,  KC_F24,
-                            KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,   KC_F11,  KC_F12,
+                                                                             ____FRW12_24____,
+                                                                             ____FRW1_12_____,
 
-        KC_NO,   KC_NO,     KC_GRV,  ___NUMBER_L1____,                            ___NUMBER_R1____,                             KC_MINS, KC_EQL,  KC_BSPC, KC_INS,  KC_HOME, KC_PGUP,             KC_NLCK, KC_SLCK, KC_PAST, KC_PSLS,
-        QK_BOOT, KC_PAUS,   KC_TAB,  ____HIEAO_L1____,                            ____HIEAO_R1____,                    KC_LBRC, KC_RBRC,                   KC_DEL,  KC_END,  KC_PGDN,             KC_P7,   KC_P8,   KC_P9,   KC_PPLS,
-        KC_NO,   KC_NO,     KC_CAPS, ____HIEAO_L2____,                            ____HIEAO_R2____,                    KC_QUOT, KC_NUHS, KC_ENT,                    KC_UP,               KC_P4,   KC_P5,   KC_P6,   KC_PMNS,
-        KC_PSCR, KC_NO,     KC_LSFT, KC_NUBS, ____HIEAO_L3____,                   ____HIEAO_R3____,                                      KC_RSFT,          KC_LEFT, KC_HOME, KC_RIGHT,   KC_P1,   KC_P2,   KC_P3,   KC_PENT,
-        MO(2),   KC_LGUI,   KC_LCTL, KC_LALT,                                     KC_SPC,                                       KC_RALT, KC_RCTL,                   KC_DOWN,             KC_P0,            KC_PDOT
+        KC_PSCR,         KC_ESC,         KC_GRV,           ___NUMBER_L1____, ___NUMBER_R1____,  KC_MINS, KC_EQL,  KC_BSPC,      ____INSHMPU_____,        _____NUMR1______,
+        QK_BOOT,         KC_PAUS,        KC_TAB,           __FUNCTION_L1___, __FUNCTION_R1___,           KC_LBRC, KC_RBRC,      ____DELENPD_____,        _____NUMR2______,
+        EEP_RST,         TG(_SYMBOLS),   ______CLMC______, __FUNCTION_L2___, __FUNCTION_R2___,  KC_QUOT, KC_NUHS, KC_ENT,            KC_UP,              _____NUMR3T_____,
+        TG(_NAVIGATION), TG(_FUNCTION),  KC_LSFT, KC_NUBS, __FUNCTION_L3___, __FUNCTION_R3___,                    KC_RSFT,  KC_LEFT, KC_HOME, KC_RIGHT,  _____NUMR4______,
+        KC_APP,          KC_LGUI,                                    _____CASPC______,                                               KC_DOWN,            _____NUMR5______
     )
 
 };

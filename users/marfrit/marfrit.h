@@ -42,6 +42,10 @@ enum custom_keycodes {
 #define ____FKEYS_B2____    KC_F5, KC_F6,  KC_F7,  KC_F8
 #define ____FKEYS_B3____    KC_F9, KC_F10, KC_F11, KC_F12
 #define ____FRW1_12_____    ____FKEYS_B1____, ____FKEYS_B2____, ____FKEYS_B3____
+#define ____FKEYS_B4____    KC_F13, KC_F14, KC_F15, KC_F16
+#define ____FKEYS_B5____    KC_F17, KC_F18, KC_F19, KC_F20
+#define ____FKEYS_B6____    KC_F21, KC_F22, KC_F23, KC_F24
+#define ____FRW12_24____    ____FKEYS_B4____, ____FKEYS_B5____, ____FKEYS_B6____
 
 #define ____HIEAO_L1____    KC_K,         KC_U,         KC_Q,          DIAC(KC_DOT),  KC_J
 #define ____HIEAO_L2____    LGUI_T(KC_H), LALT_T(KC_I), LCTL_T(KC_E),  LSFT_T(KC_A),  KC_O
