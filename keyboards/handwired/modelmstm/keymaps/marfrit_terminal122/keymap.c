@@ -14,7 +14,7 @@
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     // PC/3270 layout: PC legends (blue)
     [_HIEAO] = LAYOUT_terminal122_wrapper(
-                                                                             ____FRW12_24____,
+                                     MUTE_TEAMS, MUTE_SKYPE, KC_F15, KC_F16, ____FKEYS_B5____, ____FKEYS_B6____,
                                                                              ____FRW1_12_____,
 
         KC_PSCR,         KC_ESC,         KC_GRV,           ___NUMBER_L1____, ___NUMBER_R1____,  KC_MINS, KC_EQL,  KC_BSPC,      ____INSHMPU_____,        _____NUMR1______,
