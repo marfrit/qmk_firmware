@@ -77,14 +77,22 @@ HIDBoot<HID_PROTOCOL_KEYBOARD> kbd1(&usb_host);
 HIDBoot<HID_PROTOCOL_KEYBOARD> kbd2(&usb_host);
 HIDBoot<HID_PROTOCOL_KEYBOARD> kbd3(&usb_host);
 HIDBoot<HID_PROTOCOL_KEYBOARD> kbd4(&usb_host);
+HIDBoot<HID_PROTOCOL_MOUSE> mouse1(&usb_host);
 KBDReportParser kbd_parser1;
 KBDReportParser kbd_parser2;
 KBDReportParser kbd_parser3;
 KBDReportParser kbd_parser4;
+MouseReportParser mouse_parser1;
 
 extern "C" {
     uint8_t matrix_rows(void) { return MATRIX_ROWS; }
     uint8_t matrix_cols(void) { return MATRIX_COLS; }
+
+    void pointing_device_driver_init(void) {}
+    report_mouse_t pointing_device_driver_get_report(report_mouse_t mouse_report) { return mouse_report; }
+    uint16_t pointing_device_driver_get_cpi(void) { return 0; }
+    void pointing_device_driver_set_cpi(uint16_t cpi) {}
+
     bool matrix_has_ghost(void) { return false; }
     void matrix_init(void) {
         // USB Host Shield setup
@@ -93,6 +101,7 @@ extern "C" {
         kbd2.SetReportParser(0, (HIDReportParser*)&kbd_parser2);
         kbd3.SetReportParser(0, (HIDReportParser*)&kbd_parser3);
         kbd4.SetReportParser(0, (HIDReportParser*)&kbd_parser4);
+        mouse1.SetReportParser(0, (HIDReportParser*)&mouse_parser1);
         matrix_init_quantum();
     }
 
