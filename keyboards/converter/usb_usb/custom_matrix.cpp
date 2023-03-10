@@ -39,6 +39,20 @@ extern "C" {
 #include "quantum.h"
 }
 
+class MouseReportParser2 : public HIDReportParser {
+public:
+    report_mouse_t report;
+    uint16_t time_stamp;
+    virtual void Parse(HID *hid, bool is_rpt_id, uint8_t len, uint8_t *buf);
+};
+
+void MouseReportParser2::Parse(HID *hid, bool is_rpt_id, uint8_t len, uint8_t *buf) {
+    ::memcpy(&report, buf, sizeof(report_mouse_t));
+    time_stamp = millis();
+
+    dprintf("input %d: %02X %02X,%02X V%02X H%02X\n", hid->GetAddress(), report.buttons, report.x, report.y, report.v, report.h);
+}
+
 /* KEY CODE to Matrix
  *
  * HID keycode(1 byte):
