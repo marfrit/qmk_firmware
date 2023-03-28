@@ -39,6 +39,20 @@ extern "C" {
 #include "quantum.h"
 }
 
+class MouseReportParser2 : public HIDReportParser {
+public:
+    report_mouse_t report;
+    uint16_t time_stamp;
+    virtual void Parse(HID *hid, bool is_rpt_id, uint8_t len, uint8_t *buf);
+};
+
+void MouseReportParser2::Parse(HID *hid, bool is_rpt_id, uint8_t len, uint8_t *buf) {
+    ::memcpy(&report, buf, sizeof(report_mouse_t));
+    time_stamp = millis();
+
+    dprintf("input %d: %02X %02X,%02X V%02X H%02X\n", hid->GetAddress(), report.buttons, report.x, report.y, report.v, report.h);
+}
+
 /* KEY CODE to Matrix
  *
  * HID keycode(1 byte):
@@ -77,14 +91,22 @@ HIDBoot<HID_PROTOCOL_KEYBOARD> kbd1(&usb_host);
 HIDBoot<HID_PROTOCOL_KEYBOARD> kbd2(&usb_host);
 HIDBoot<HID_PROTOCOL_KEYBOARD> kbd3(&usb_host);
 HIDBoot<HID_PROTOCOL_KEYBOARD> kbd4(&usb_host);
+HIDBoot<HID_PROTOCOL_MOUSE> mouse1(&usb_host);
 KBDReportParser kbd_parser1;
 KBDReportParser kbd_parser2;
 KBDReportParser kbd_parser3;
 KBDReportParser kbd_parser4;
+MouseReportParser mouse_parser1;
 
 extern "C" {
     uint8_t matrix_rows(void) { return MATRIX_ROWS; }
     uint8_t matrix_cols(void) { return MATRIX_COLS; }
+
+    void pointing_device_driver_init(void) {}
+    report_mouse_t pointing_device_driver_get_report(report_mouse_t mouse_report) { return mouse_report; }
+    uint16_t pointing_device_driver_get_cpi(void) { return 0; }
+    void pointing_device_driver_set_cpi(uint16_t cpi) {}
+
     bool matrix_has_ghost(void) { return false; }
     void matrix_init(void) {
         // USB Host Shield setup
@@ -93,7 +115,8 @@ extern "C" {
         kbd2.SetReportParser(0, (HIDReportParser*)&kbd_parser2);
         kbd3.SetReportParser(0, (HIDReportParser*)&kbd_parser3);
         kbd4.SetReportParser(0, (HIDReportParser*)&kbd_parser4);
-        matrix_init_kb();
+        mouse1.SetReportParser(0, (HIDReportParser*)&mouse_parser1);
+        matrix_init_quantum();
     }
 
     static void or_report(report_keyboard_t report) {

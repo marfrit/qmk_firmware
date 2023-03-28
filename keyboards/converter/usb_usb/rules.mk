@@ -13,6 +13,9 @@ AUDIO_ENABLE = no           # Audio output
 USB_HID_ENABLE = yes
 CUSTOM_MATRIX = yes
 
-SRC += custom_matrix.cpp
+POINTING_DEVICE_ENABLE = yes
+POINTING_DEVICE_DRIVER = custom
+
+SRC += custom_matrix.cpp hidboot.cpp
 
 DEFAULT_FOLDER = converter/usb_usb/hasu
