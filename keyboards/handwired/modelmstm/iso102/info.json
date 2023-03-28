@@ -1,0 +1,10 @@
+{
+    "bootloader": "stm32-dfu",
+    "keyboard_name": "modelmstm",
+    "development_board": "blackpill_f401",
+    "matrix_pins": {
+        "cols": ["B9", "B8", "B7", "B6", "B5", "B4", "B3", "A15", "C13", "C14", "A10", "C15", "A8", "B15", "B14", "B13"],
+        "rows": ["A0", "A1", "A2", "A3", "A4", "A5", "A6", "A7"]
+    },
+    "diode_direction": "ROW2COL"
+}

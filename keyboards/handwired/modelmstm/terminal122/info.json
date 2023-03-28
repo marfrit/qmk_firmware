@@ -1,0 +1,8 @@
+{
+    "keyboard_name": "modelmstm",
+    "development_board": "blackpill_f401",
+    "matrix_pins": {
+        "cols": ["B12", "B13", "B14", "B15", "A8", "B10", "A10", "B1", "B0", "A15", "B3", "B4", "B5", "B6", "B7", "B8", "B9", "C15", "C14", "C13"],
+        "rows": ["A7", "A6", "A5", "A4", "A3", "A2", "A1", "A0"]
+    }
+}
