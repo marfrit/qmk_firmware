@@ -34,11 +34,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  *                                              `-------------'         `-------------'
  */
 [_BASE] = LAYOUT_gergo(
-    ALL_T(KC_ESC),   KC_K,         KC_U,         KC_Q,         LT(_UMLAUT,KC_DOT), KC_J,                                                               KC_V,                LT(_UMLAUT, KC_G), KC_C,   KC_L,  KC_F,         KC_BSPC,
-    KC_TAB,          LGUI_T(KC_H), LALT_T(KC_I), LCTL_T(KC_E), LSFT_T(KC_A),       KC_O,                KC_BTN2,                              KC_TRNS, KC_D,                RSFT_T(KC_T),      RCTL_T(KC_R),  LALT_T(KC_N), KC_S, KC_ENT,
-    KC_LSFT,         KC_X,         RALT_T(KC_Y), KC_SCLN,      LT(_LOWER,KC_COMM), LT(_RAISE, KC_SLSH), KC_BTN1, KC_BTN3,  KC_PGDN,           KC_BSPC, LT(_RAISE,KC_B),     LT(_LOWER,KC_P),   KC_W,          RALT_T(KC_M), KC_Z, KC_RSFT,
+    ALL_T(KC_ESC),   KC_K,         KC_U,         KC_Q,         LT(_UMLAUT,KC_DOT), KC_J,                                                                  KC_V,                LT(_UMLAUT, KC_G), KC_C,   KC_L,  KC_F,         KC_BSPC,
+    KC_TAB,          LGUI_T(KC_H), LALT_T(KC_I), LCTL_T(KC_E), LSFT_T(KC_A),       KC_O,                MUTE_TEAMS,                           MUTE_SKYPE, KC_D,                RSFT_T(KC_T),      RCTL_T(KC_R),  LALT_T(KC_N), KC_S, KC_ENT,
+    KC_LSFT,         KC_X,         RALT_T(KC_Y), KC_SCLN,      LT(_LOWER,KC_COMM), LT(_RAISE, KC_SLSH), KC_BTN1, KC_BTN3,  KC_PGDN,           KC_BSPC,    LT(_RAISE,KC_B),     LT(_LOWER,KC_P),   KC_W,          RALT_T(KC_M), KC_Z, KC_RSFT,
 
-                                                 MO(_ADJUST),                       MO(_LOWER),         LT(_RAISE, KC_SPC),MO(_ADJUST),       KC_ENT,  LT(_RAISE, KC_BSPC), MO(_LOWER),        MO(_ADJUST)
+                                                 MO(_ADJUST),                       MO(_LOWER),         LT(_RAISE, KC_SPC),MO(_ADJUST),       KC_ENT,     LT(_RAISE, KC_BSPC), MO(_LOWER),        MO(_ADJUST)
     ),
 /* Keymap 1: Lower layer
  *
