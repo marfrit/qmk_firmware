@@ -41,3 +41,5 @@ endif
 ifeq ($(strip $(DEBUG_MATRIX)), yes)
     OPT_DEFS += -DDEBUG_MATRIX
 endif
+
+SRC += marfrit.c

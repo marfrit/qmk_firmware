@@ -6,7 +6,7 @@
  * There's also a template for adding new layers at the bottom of this file!
  */
 
-#include QMK_KEYBOARD_H
+#include "marfrit.h"
 
 #define _BASE   0 // default layer
 #define _LOWER  1 // symbols
