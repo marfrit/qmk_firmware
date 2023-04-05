@@ -7,6 +7,12 @@
         "pid": "0x6465",
         "device_version": "0.0.1"
     },
+    "ps2": {
+        "enabled": true,
+        "driver": "vendor",
+        "clock_pin": "GP20",
+        "data_pin": "GP21"
+    },
     "diode_direction": "COL2ROW",
     "features": {
         "bootmagic": false,
