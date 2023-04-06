@@ -1,30 +1,34 @@
+#include <stdint.h>
+#include <stdbool.h>
 #include "matrix.h"
 #include "ps2.h"
 #include "timer.h"
 #include "action.h"
 #include "host.h"
+#include "debug.h"
 
 #define print_matrix_row(row)  print_bin_reverse8(matrix_get_row(row))
 #define print_matrix_header()  print("\nr/c 01234567\n")
 #define matrix_bitpop(i)       bitpop(matrix[i])
 #define ROW_SHIFTER ((uint8_t)1)
 
-typedef enum { NONE, PC_XT, PC_AT, PC_TERMINAL, PC_MOUSE } keyboard_kind_t;
+typedef enum { NONE, PC_AT, PC_TERMINAL, PC_MOUSE } keyboard_kind_t;
 #define KEYBOARD_KIND_STR(kind) \
-    (kind == PC_XT ? "XT" :   \
-     kind == PC_AT ? "AT" :   \
+    (kind == PC_AT ? "AT" :   \
      kind == PC_TERMINAL ? "TERMINAL" :   \
      kind == PC_MOUSE ? "MOUSE" :   \
      "NONE")
+#define ID_STR(id)  (id == 0xFFFE ? "_????" : \
+                    (id == 0xFFFD ? "_Z150" : \
+                    (id == 0x0000 ? "_AT84" : \
+                     "")))
 
 int16_t read_wait(uint16_t wait_ms);
 static uint16_t read_keyboard_id(void);
 static void matrix_make(uint8_t code);
 static void matrix_break(uint8_t code);
 void matrix_clear(void);
-static uint8_t cs1_e0code(uint8_t code);
 static uint8_t cs2_e0code(uint8_t code);
-static int8_t process_cs1(uint8_t code);
 static int8_t process_cs2(uint8_t code);
 static int8_t process_cs3(uint8_t code);
 static uint8_t translate_5576_cs2(uint8_t code);
@@ -49,22 +53,6 @@ __attribute__((weak)) void matrix_init_user(void) {}
 
 __attribute__((weak)) void matrix_scan_user(void) {}
 
-matrix_row_t matrix_get_row(uint8_t row) {
-    // TODO: return the requested row data
-    return 1; //MFR
-}
-
-void matrix_print(void) {
-    // TODO: use print() to dump the current matrix state to console
-}
-
-void matrix_init(void) {
-    // TODO: initialize hardware and global matrix state here
-
-    // This *must* be called for correct keyboard behavior
-    matrix_init_kb();
-}
-
 static uint16_t read_keyboard_id(void)
 {
     uint16_t id = 0;
@@ -72,7 +60,7 @@ static uint16_t read_keyboard_id(void)
 
     // Read ID
     code = ps2_host_send(0xF2);
-    if (code == -1) { id = 0xFFFF; goto DONE; }     // XT or No keyboard
+    if (code == -1) { id = 0xFFFF; goto DONE; }     // No keyboard
     if (code != 0xFA) { id = 0xFFFE; goto DONE; }   // Broken PS/2?
 
     // ID takes 500ms max TechRef [8] 4-41
@@ -97,190 +85,6 @@ int16_t read_wait(uint16_t wait_ms)
     int16_t code;
     while ((code = ps2_host_recv()) == -1 && timer_elapsed(start) < wait_ms);
     return code;
-}
-
-inline
-static void matrix_make(uint8_t code)
-{
-    xprintf("make %02X\r\n", code);
-    if (!matrix_is_on(ROW(code), COL(code))) {
-        matrix[ROW(code)] |= 1<<COL(code);
-        is_modified = true;
-    }
-}
-
-inline
-static void matrix_break(uint8_t code)
-{
-    xprintf("break %02X\r\n", code);
-    if (matrix_is_on(ROW(code), COL(code))) {
-        matrix[ROW(code)] &= ~(1<<COL(code));
-        is_modified = true;
-    }
-}
-
-static int8_t process_cs1(uint8_t code)
-{
-    static enum {
-        INIT,
-        cE0,
-        // Pause: E1 1D 45, E1 9D C5 [a]
-        cE1,
-        E1_1D,
-        E1_9D,
-    } state = INIT;
-
-    switch (state) {
-        case INIT:
-            switch (code) {
-                case 0xE0:
-                    state = cE0;
-                    break;
-                case 0xE1:
-                    state = cE1;
-                    break;
-                default:
-                    if (code < 0x80)
-                        matrix_make(code);
-                    else
-                        matrix_break(code & 0x7F);
-                    break;
-            }
-            break;
-        case cE0:
-            switch (code) {
-                case 0x2A:
-                case 0xAA:
-                case 0x36:
-                case 0xB6:
-                    //ignore fake shift
-                    state = INIT;
-                    break;
-                default:
-                    if (code < 0x80)
-                        matrix_make(cs1_e0code(code));
-                    else
-                        matrix_break(cs1_e0code(code & 0x7F));
-                    state = INIT;
-                    break;
-            }
-            break;
-        case cE1:
-            switch (code) {
-                case 0x1D:
-                    state = E1_1D;
-                    break;
-                case 0x9D:
-                    state = E1_9D;
-                    break;
-                default:
-                    state = INIT;
-                    break;
-            }
-            break;
-        case E1_1D:
-            switch (code) {
-                case 0x45:
-                    matrix_make(0x55); // Pause
-                    state = INIT;
-                    break;
-                default:
-                    state = INIT;
-                    break;
-            }
-            break;
-        case E1_9D:
-            switch (code) {
-                case 0xC5:
-                    matrix_break(0x55); // Pause
-                    state = INIT;
-                    break;
-                default:
-                    state = INIT;
-                    break;
-            }
-            break;
-        default:
-            state = INIT;
-    }
-    return 0;
-}
-
-/*******************************************************************************
- * XT: Scan Code Set 1
- *
- * See [3], [a]
- *
- * E0-escaped scan codes are translated into unused range of the matrix.(54-7F)
- *
- *     01-53: Normal codes used in original XT keyboard
- *     54-7F: Not used in original XT keyboard
- *
- *         0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
- *     50  -   -   -   -   *   *   x   x   x   x   *   *   *   *   *   *
- *     60  *   *   *   *   x   x   x   x   x   x   x   x   x   x   x   *
- *     70  x   *   *   x   *   *   x   *   *   x   *   x   *   x   x   *
- *
- * -: codes existed in original XT keyboard
- * *: E0-escaped codes translated
- * x: Non-espcaped codes(Some are not used in real keyboards probably)
- *
- * Codes assigned in range 54-7F:
- *
- *     50  -                60  Up*                 70  KANAx
- *     51  -                61  Left*               71  Insert*
- *     52  -                62  Down*               72  Delete*
- *     53  -                63  Right*              73  ROx
- *     54  PrintScr*        64  F13x                74  Home*
- *     55  Pause*           65  F14x                75  End*
- *     56  Euro2x           66  F15x                76  F24x
- *     57  F11x             67  F16x                77  PageUp*
- *     58  F12x             68  F17x                78  PageDown*
- *     59  Keypad=x         69  F18x                79  HENKANx
- *     5A  LGUI*            6A  F19x                7A  RCTL*
- *     5B  RGUI*            6B  F20x                7B  MUHENKANx
- *     5C  APP*             6C  F21x                7C  RALT*
- *     5D  Mute*            6D  F22x                7D  JPYx
- *     5E  Volume Down*     6E  F23x                7E  Keypad,x
- *     5F  Volume Up*       6F  Keypad Enter*       7F  Keypad/ *
- */
-static uint8_t cs1_e0code(uint8_t code) {
-    switch(code) {
-        // Original IBM XT keyboard doesn't use E0-codes probably
-        // Some XT compatilble keyobards need these keys?
-        case 0x37: return 0x54; // Print Screen
-        case 0x46: return 0x55; // Ctrl + Pause
-        case 0x5B: return 0x5A; // Left  GUI
-        case 0x5C: return 0x5B; // Right GUI
-        case 0x5D: return 0x5C; // Application
-        case 0x20: return 0x5D; // Mute
-        case 0x2E: return 0x5E; // Volume Down
-        case 0x30: return 0x5F; // Volume Up
-        case 0x48: return 0x60; // Up
-        case 0x4B: return 0x61; // Left
-        case 0x50: return 0x62; // Down
-        case 0x4D: return 0x63; // Right
-        case 0x1C: return 0x6F; // Keypad Enter
-        case 0x52: return 0x71; // Insert
-        case 0x53: return 0x72; // Delete
-        case 0x47: return 0x74; // Home
-        case 0x4F: return 0x75; // End
-        case 0x49: return 0x77; // Page Up
-        case 0x51: return 0x78; // Page Down
-        case 0x1D: return 0x7A; // Right Ctrl
-        case 0x38: return 0x7C; // Right Alt
-        case 0x35: return 0x7F; // Keypad /
-
-        // Shared matrix cell with other keys
-        case 0x5E: return 0x70; // Power (KANA)
-        case 0x5F: return 0x79; // Sleep (HENKAN)
-        case 0x63: return 0x7B; // Wake  (MUHENKAN)
-
-        default:
-           xprintf("!CS1_E0_%02X!\n", code);
-           return code;
-    }
-    return 0x00;
 }
 
 static int8_t process_cs2(uint8_t code)
@@ -835,9 +639,6 @@ uint8_t matrix_scan(void)
         INIT,
         WAIT_SETTLE,
         AT_RESET,
-        XT_RESET,
-        XT_RESET_WAIT,
-        XT_RESET_DONE,
         WAIT_AA,
         WAIT_AABF,
         WAIT_AABFBF,
@@ -875,7 +676,7 @@ uint8_t matrix_scan(void)
 
             init_time = timer_read();
             state = WAIT_SETTLE;
-            ps2_host_enable();
+//            ps2_host_enable();
             break;
         case WAIT_SETTLE:
             while (ps2_host_recv() != -1) ; // read data
@@ -894,34 +695,7 @@ uint8_t matrix_scan(void)
             // reset command
             if (0xFA == ps2_host_send(0xFF)) {
                 state = WAIT_AA;
-            } else {
-                state = XT_RESET;
             }
-            break;
-        case XT_RESET:
-            // Reset XT-initialize keyboard
-            // XT: hard reset 500ms for IBM XT Type-1 keyboard and clones
-            // XT: soft reset 20ms min
-            // https://github.com/tmk/tmk_keyboard/wiki/IBM-PC-XT-Keyboard-Protocol#keyboard-soft-reset
-            ps2_host_disable();   // soft reset: Clock Lo/Data Hi
-            ps2_RST_LO();         // hard reset: Reset pin Lo
-
-            init_time = timer_read();
-            state = XT_RESET_WAIT;
-            break;
-        case XT_RESET_WAIT:
-            if (timer_elapsed(init_time) > 500) {
-                state = XT_RESET_DONE;
-            }
-            break;
-        case XT_RESET_DONE:
-            ps2_RST_HIZ();        // hard reset: Reset pin HiZ
-            ps2_host_isr_clear();
-            ps2_host_enable();    // soft reset: idle(Clock Hi/Data Hi)
-
-            xprintf("X%u ", timer_read());
-            init_time = timer_read();
-            state = WAIT_AA;
             break;
         case WAIT_AA:
             // 1) Read BAT code and ID on keybaord power-up
@@ -969,8 +743,6 @@ uint8_t matrix_scan(void)
 
             if (0x0000 == keyboard_id) {            // CodeSet2 AT(IBM PC AT 84-key)
                 keyboard_kind = PC_AT;
-            } else if (0xFFFF == keyboard_id) {     // CodeSet1 XT
-                keyboard_kind = PC_XT;
             } else if (0xFFFE == keyboard_id) {     // CodeSet2 PS/2 fails to response?
                 keyboard_kind = PC_AT;
             } else if (0xFFFD == keyboard_id) {     // Zenith Z-150 AT
@@ -1048,8 +820,6 @@ uint8_t matrix_scan(void)
         case SETUP:
             xprintf("S%u ", timer_read());
             switch (keyboard_kind) {
-                case PC_XT:
-                    break;
                 case PC_AT:
                     led_set(host_keyboard_leds());
                     break;
@@ -1086,9 +856,6 @@ uint8_t matrix_scan(void)
                 }
 
                 switch (keyboard_kind) {
-                    case PC_XT:
-                        if (process_cs1(code) == -1) state = ERROR;
-                        break;
                     case PC_AT:
                         if (process_cs2(code) == -1) state = ERROR;
                         break;
@@ -1109,5 +876,103 @@ uint8_t matrix_scan(void)
             break;
     }
     return 1;
+}
+
+inline
+bool matrix_is_on(uint8_t row, uint8_t col)
+{
+    return (matrix[row] & (1<<col));
+}
+
+void matrix_clear(void)
+{
+    for (uint8_t i=0; i < MATRIX_ROWS; i++) matrix[i] = 0x00;
+}
+
+inline
+matrix_row_t matrix_get_row(uint8_t row)
+{
+    return matrix[row];
+}
+
+uint8_t matrix_key_count(void)
+{
+    uint8_t count = 0;
+    for (uint8_t i = 0; i < MATRIX_ROWS; i++) {
+        count += bitpop(matrix[i]);
+    }
+    return count;
+}
+
+
+inline
+static void matrix_make(uint8_t code)
+{
+    xprintf("make %02X\r\n", code);
+    if (!matrix_is_on(ROW(code), COL(code))) {
+        matrix[ROW(code)] |= 1<<COL(code);
+        is_modified = true;
+    }
+}
+
+inline
+static void matrix_break(uint8_t code)
+{
+    xprintf("break %02X\r\n", code);
+    if (matrix_is_on(ROW(code), COL(code))) {
+        matrix[ROW(code)] &= ~(1<<COL(code));
+        is_modified = true;
+    }
+}
+
+void matrix_print(void)
+{
+#if (MATRIX_COLS <= 8)
+    print("r/c 01234567\n");
+#elif (MATRIX_COLS <= 16)
+    print("r/c 0123456789ABCDEF\n");
+#elif (MATRIX_COLS <= 32)
+    print("r/c 0123456789ABCDEF0123456789ABCDEF\n");
+#endif
+
+    for (uint8_t row = 0; row < MATRIX_ROWS; row++) {
+
+//#if (MATRIX_COLS <= 8)
+//        xprintf("%02X: %08b%s\n", row, bitrev(matrix_get_row(row)),
+//#elif (MATRIX_COLS <= 16)
+//        xprintf("%02X: %016b%s\n", row, bitrev16(matrix_get_row(row)),
+//#elif (MATRIX_COLS <= 32)
+//        xprintf("%02X: %032b%s\n", row, bitrev32(matrix_get_row(row)),
+//#endif
+#ifdef MATRIX_HAS_GHOST
+        matrix_has_ghost_in_row(row) ?  " <ghost" : ""
+#endif
+    }
+}
+
+void matrix_init(void)
+{
+    debug_enable   = true;
+    debug_matrix   = true;
+    debug_keyboard = true;
+    debug_mouse    = true;
+
+    wait_ms(3500);
+    xprintf("TURNING ON POWER\n");
+    setPinOutput(GP16);
+    writePinHigh(GP16);
+    wait_ms(100);
+    setPinOutput(GP17);
+    writePinHigh(GP17);
+    wait_ms(2000);
+
+    ps2_host_init();
+
+
+    // initialize matrix state: all keys off
+    for (uint8_t i=0; i < MATRIX_ROWS; i++) matrix[i] = 0x00;
+
+    matrix_init_kb();
+    return;
 }
 
