@@ -7,3 +7,4 @@ void keyboard_post_init_kb(void) {
     debug_mouse    = true;
     keyboard_post_init_user();
 }
+
