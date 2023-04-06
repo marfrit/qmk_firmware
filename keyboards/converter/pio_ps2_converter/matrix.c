@@ -647,13 +647,17 @@ uint8_t matrix_scan(void)
         LOOP,
         ERROR,
     } state = INIT;
+
+    bool changed = false;
     static uint16_t init_time;
 
-    if (ps2_error) {
+    xprintf("A SCAN IS INCOMING\n");
+
+     if (ps2_error) {
         xprintf("\n%u ERR:%02X ", timer_read(), ps2_error);
 
         // when recv error, neither send error nor buffer full
-        if (!(ps2_error & (! PS2_ERR_NONE))) {
+        if (!(ps2_error & (PS2_ERR_SEND | PS2_ERR_FULL))) {
             // keyboard init again
             if (state == LOOP) {
                 xprintf("[RST] ");
@@ -679,7 +683,9 @@ uint8_t matrix_scan(void)
 //            ps2_host_enable();
             break;
         case WAIT_SETTLE:
-            while (ps2_host_recv() != -1) ; // read data
+            dprintln("BEFORE RECEIVE");
+            while (ps2_host_recv() != 0) ; // read data
+            dprintln("AFTER RECEIVE");
 
             // wait for keyboard to settle after plugin
             if (timer_elapsed(init_time) > 3000) {
@@ -799,7 +805,7 @@ uint8_t matrix_scan(void)
             } else if (0x7F00 == (keyboard_id & 0xFF00)) {  // CodeSet3 Terminal 1394204
                 keyboard_kind = PC_TERMINAL;
             } else {
-                xprintf("\nUnknown ID: Report to TMK ");
+                xprintf("\nUnknown ID: Report ");
                 if ((0xFA == ps2_host_send(0xF0)) &&
                     (0xFA == ps2_host_send(0x02))) {
                     // switch to code set 2
@@ -875,7 +881,9 @@ uint8_t matrix_scan(void)
         default:
             break;
     }
-    return 1;
+    xprintf("A SCAN IS DONE\n");
+    changed = true;
+    return (uint8_t)changed;
 }
 
 inline
@@ -967,12 +975,14 @@ void matrix_init(void)
     wait_ms(2000);
 
     ps2_host_init();
+    xprintf("PS/2 INITIALIZED\n");
 
 
     // initialize matrix state: all keys off
     for (uint8_t i=0; i < MATRIX_ROWS; i++) matrix[i] = 0x00;
 
     matrix_init_kb();
+    xprintf("KEYBOARD INITIALIZED\n");
     return;
 }
 
