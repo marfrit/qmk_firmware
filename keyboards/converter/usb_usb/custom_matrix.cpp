@@ -73,9 +73,10 @@ static report_keyboard_t local_keyboard_report;
 USB usb_host;
 HIDBoot<HID_PROTOCOL_KEYBOARD> kbd1(&usb_host);
 KBDReportParser kbd_parser1;
-HIDBoot<HID_PROTOCOL_MOUSE> mouse1(&usb_host);
+// USBHub hub1(&usb_host);
 
 extern "C" {
+
     uint8_t matrix_rows(void) { return MATRIX_ROWS; }
     uint8_t matrix_cols(void) { return MATRIX_COLS; }
     bool matrix_has_ghost(void) { return false; }
@@ -84,6 +85,7 @@ extern "C" {
         usb_host.Init();
         kbd1.SetReportParser(0, (HIDReportParser*)&kbd_parser1);
         matrix_init_kb();
+        dprintf("Matrix initialized\n");
     }
 
     static void or_report(report_keyboard_t report) {

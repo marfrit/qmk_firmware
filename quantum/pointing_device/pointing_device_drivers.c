@@ -357,6 +357,30 @@ const pointing_device_driver_t pointing_device_driver = {
 };
 // clang-format on
 
+#elif defined(POINTING_DEVICE_DRIVER_usb_usb)
+
+    void usb_usb_pointing_device_init(void) {
+        dprintf("Pointing device initialized!\n");
+        // mouse1.SetReportParser(0, (HIDReportParser*)&mouse_parser1);
+    }
+
+    report_mouse_t usb_usb_pointing_device_get_report(report_mouse_t mouse_report) {
+        return mouse_report;
+    }
+
+    uint16_t usb_usb_pointing_device_get_cpi(void) { return 0; }
+    void usb_usb_pointing_device_set_cpi(uint16_t cpi) {}
+
+
+// clang-format off
+const pointing_device_driver_t pointing_device_driver = {
+    .init       = usb_usb_pointing_device_init,
+    .get_report = usb_usb_pointing_device_get_report,
+    .set_cpi    = usb_usb_pointing_device_set_cpi,
+    .get_cpi    = usb_usb_pointing_device_get_cpi
+};
+// clang-format on
+
 #else
 __attribute__((weak)) void           pointing_device_driver_init(void) {}
 __attribute__((weak)) report_mouse_t pointing_device_driver_get_report(report_mouse_t mouse_report) {
