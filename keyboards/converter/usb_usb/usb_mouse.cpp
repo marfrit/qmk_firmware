@@ -6,8 +6,8 @@
 #include "parser.h"
 
 extern "C" {
-    #include "quantum.h"
-    #include "pointing_device.h"
+#include "quantum.h"
+#include "pointing_device.h"
 }
 
 extern USB usb_host;
@@ -46,6 +46,7 @@ extern "C" {
         local_mouse_report.v = mouse_parser1.report.v;
         local_mouse_report.buttons = mouse_parser1.report.buttons;
         pointing_device_set_report(local_mouse_report);
+        usb_host.Task();
         return local_mouse_report;
     }
 }

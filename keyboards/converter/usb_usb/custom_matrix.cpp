@@ -71,12 +71,18 @@ static report_keyboard_t local_keyboard_report;
  * This supports two cascaded hubs and four keyboards
  */
 USB usb_host;
+USBHub hub1(&usb_host);
+USBHub hub2(&usb_host);
 HIDBoot<HID_PROTOCOL_KEYBOARD> kbd1(&usb_host);
+HIDBoot<HID_PROTOCOL_KEYBOARD> kbd2(&usb_host);
+HIDBoot<HID_PROTOCOL_KEYBOARD> kbd3(&usb_host);
+HIDBoot<HID_PROTOCOL_KEYBOARD> kbd4(&usb_host);
 KBDReportParser kbd_parser1;
-// USBHub hub1(&usb_host);
+KBDReportParser kbd_parser2;
+KBDReportParser kbd_parser3;
+KBDReportParser kbd_parser4;
 
 extern "C" {
-
     uint8_t matrix_rows(void) { return MATRIX_ROWS; }
     uint8_t matrix_cols(void) { return MATRIX_COLS; }
     bool matrix_has_ghost(void) { return false; }
@@ -84,8 +90,10 @@ extern "C" {
         // USB Host Shield setup
         usb_host.Init();
         kbd1.SetReportParser(0, (HIDReportParser*)&kbd_parser1);
+        kbd2.SetReportParser(0, (HIDReportParser*)&kbd_parser2);
+        kbd3.SetReportParser(0, (HIDReportParser*)&kbd_parser3);
+        kbd4.SetReportParser(0, (HIDReportParser*)&kbd_parser4);
         matrix_init_kb();
-        dprintf("Matrix initialized\n");
     }
 
     static void or_report(report_keyboard_t report) {
@@ -124,15 +132,27 @@ extern "C" {
     uint8_t matrix_scan(void) {
         bool changed = false;
         static uint16_t last_time_stamp1 = 0;
+        static uint16_t last_time_stamp2 = 0;
+        static uint16_t last_time_stamp3 = 0;
+        static uint16_t last_time_stamp4 = 0;
 
         // check report came from keyboards
-        if (kbd_parser1.time_stamp != last_time_stamp1) {
+        if (kbd_parser1.time_stamp != last_time_stamp1 ||
+            kbd_parser2.time_stamp != last_time_stamp2 ||
+            kbd_parser3.time_stamp != last_time_stamp3 ||
+            kbd_parser4.time_stamp != last_time_stamp4) {
 
             last_time_stamp1 = kbd_parser1.time_stamp;
+            last_time_stamp2 = kbd_parser2.time_stamp;
+            last_time_stamp3 = kbd_parser3.time_stamp;
+            last_time_stamp4 = kbd_parser4.time_stamp;
 
             // clear and integrate all reports
             local_keyboard_report = {};
             or_report(kbd_parser1.report);
+            or_report(kbd_parser2.report);
+            or_report(kbd_parser3.report);
+            or_report(kbd_parser4.report);
 
             changed = true;
 
@@ -210,6 +230,9 @@ extern "C" {
 
     void led_set(uint8_t usb_led) {
         if (kbd1.isReady()) kbd1.SetReport(0, 0, 2, 0, 1, &usb_led);
+        if (kbd2.isReady()) kbd2.SetReport(0, 0, 2, 0, 1, &usb_led);
+        if (kbd3.isReady()) kbd3.SetReport(0, 0, 2, 0, 1, &usb_led);
+        if (kbd4.isReady()) kbd4.SetReport(0, 0, 2, 0, 1, &usb_led);
         led_set_user(usb_led);
         led_update_kb((led_t){.raw = usb_led});
     }
