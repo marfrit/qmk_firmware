@@ -39,7 +39,7 @@ enum custom_keycodes {
 #define _____CASPC______    KC_CAPS, KC_LALT, KC_SPC, KC_RALT, KC_RCTL
 #define _____CASPW______    KC_CAPS, KC_LGUI, KC_LALT, KC_SPC, KC_RALT, KC_RGUI, KC_APP, KC_RCTL
 
-#define _____NUMR1______    KC_NLCK, KC_PSLS, KC_PAST, KC_PMNS
+#define _____NUMR1______    KC_NUM,  KC_PSLS, KC_PAST, KC_PMNS
 #define _____NUMR2______    KC_P7,   KC_P8,   KC_P9,   KC_PPLS
 #define _____NUMR3T_____    KC_P4,   KC_P5,   KC_P6,   KC_PCMM
 #define _____NUMR3______    KC_P4,   KC_P5,   KC_P6

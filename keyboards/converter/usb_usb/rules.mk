@@ -11,8 +11,12 @@ BACKLIGHT_ENABLE = no       # Enable keyboard backlight functionality
 RGBLIGHT_ENABLE = no        # Enable keyboard RGB underglow
 AUDIO_ENABLE = no           # Audio output
 USB_HID_ENABLE = yes
+LTO_ENABLE = yes
 CUSTOM_MATRIX = yes
 
-SRC += custom_matrix.cpp
+POINTING_DEVICE_ENABLE = yes
+POINTING_DEVICE_DRIVER = custom
+
+SRC += custom_matrix.cpp usb_mouse.cpp
 
 DEFAULT_FOLDER = converter/usb_usb/hasu
