@@ -4,6 +4,7 @@
 #include "hid.h"
 #include "hidboot.h"
 #include "parser.h"
+#include "debug.h"
 
 extern "C" {
 #include "quantum.h"
@@ -14,6 +15,8 @@ extern USB usb_host;
 extern KBDReportParser kbd_parser1;
 report_mouse_t prevReport;
 uint16_t prev_time_stamp;
+// uint16_t cpisetting;
+// bool scrolling;
 
 class MouseReportParser2 : public MouseReportParser {
 public:
@@ -25,9 +28,32 @@ public:
 void MouseReportParser2::Parse(HID *hid, bool is_rpt_id, uint8_t len, uint8_t *buf) {
     struct MOUSEINFO *msg = (struct MOUSEINFO*) buf;
     time_stamp = timer_read();
-    report.buttons = msg->bmLeftButton | msg->bmMiddleButton << 2 | msg->bmRightButton << 1;
-    report.x = msg->dX;
-    report.y = msg->dY;
+    // report.buttons = msg->bmLeftButton | msg->bmRightButton << 1 | msg->bmMiddleButton << 2;
+    report.buttons = msg->bmLeftButton | msg->bmRightButton << 1;
+    // scrolling = msg->bmMiddleButton;
+    if(!msg->bmMiddleButton) {
+        // cpisetting = pointing_device_get_cpi();
+        // pointing_device_set_cpi(pointing_device_get_cpi() >> 4);
+        // dprintf("CPI: %d\n", cpisetting);
+        report.x = msg->dX;
+        report.y = msg->dY;
+        report.h = 0;
+        report.v = 0;
+    } else {
+        report.x = 0;
+        report.y = 0;
+        report.h = - msg->dX;
+        report.v = - msg->dY;
+        dprintf("%d %d\n", msg->dX, msg->dY);
+    }
+
+    // int i;
+    // for (i = 0; i < len; i++)
+    // {
+    //     if (i > 0) printf(":");
+    //     dprintf("%02X", buf[i]);
+    // }
+    // dprintf("\n");
 }
 
 HIDBoot<HID_PROTOCOL_KEYBOARD | HID_PROTOCOL_MOUSE> hidcomposite(&usb_host);
@@ -56,9 +82,13 @@ extern "C" {
         local_mouse_report = pointing_device_get_report();
         local_mouse_report.x = mouse_parser1.report.x;
         local_mouse_report.y = mouse_parser1.report.y;
+        local_mouse_report.h = mouse_parser1.report.h;
+        local_mouse_report.v = mouse_parser1.report.v;
         if(timer_elapsed(mouse_parser1.time_stamp)) {
             mouse_parser1.report.x = 0;
             mouse_parser1.report.y = 0;
+            mouse_parser1.report.h = 0;
+            mouse_parser1.report.v = 0;
         }
         local_mouse_report.buttons = mouse_parser1.report.buttons;
         pointing_device_set_report(local_mouse_report);
