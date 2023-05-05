@@ -21,8 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define VENDOR_ID       0xFEED
 #define PRODUCT_ID      0x6465
 #define DEVICE_VER      0x0102
-#define MANUFACTURER    marfrit
-#define PRODUCT         modelmstm
+//#define MANUFACTURER    marfrit
+//#define PRODUCT         modelmstm
 
 /* key matrix size */
 #define MATRIX_ROWS 8
