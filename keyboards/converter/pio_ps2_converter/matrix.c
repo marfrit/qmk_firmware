@@ -651,13 +651,11 @@ uint8_t matrix_scan(void)
     bool changed = false;
     static uint16_t init_time;
 
-    xprintf("A SCAN IS INCOMING\n");
-
-     if (ps2_error) {
+     if (ps2_error && ! PS2_ERR_NODATA) {
         xprintf("\n%u ERR:%02X ", timer_read(), ps2_error);
 
         // when recv error, neither send error nor buffer full
-        if (!(ps2_error & (PS2_ERR_SEND | PS2_ERR_FULL))) {
+        if (!(ps2_error)) {
             // keyboard init again
             if (state == LOOP) {
                 xprintf("[RST] ");
@@ -881,7 +879,6 @@ uint8_t matrix_scan(void)
         default:
             break;
     }
-    xprintf("A SCAN IS DONE\n");
     changed = true;
     return (uint8_t)changed;
 }

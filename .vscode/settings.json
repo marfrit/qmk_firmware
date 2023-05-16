@@ -27,5 +27,7 @@
     "python.formatting.provider": "yapf",
     "[json]": {
 	    "editor.formatOnSave": false
-    }
+    },
+    "cmake.configureOnOpen": false,
+    "cmake.sourceDirectory": "/home/mfritsche/src/qmk_firmware/lib/pico-sdk/src/common/boot_picoboot"
 }
