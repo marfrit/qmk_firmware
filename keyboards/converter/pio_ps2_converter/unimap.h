@@ -4,9 +4,6 @@ Copyright 2016 Jun Wako <wakojun@gmail.com>
 #ifndef _UNIMAP_H_
 #define _UNIMAP_H_
 
-#include <stdint.h>
-#include <stdbool.h>
-
 // Universal map table: 8x16=128key
 #define UNIMAP_ROWS 8
 #define UNIMAP_COLS 16
@@ -92,7 +89,7 @@ enum unimap_position_codes {
     UNIMAP_HOME,            // 0x4A
     UNIMAP_PGUP,            // 0x4B
     UNIMAP_DELETE,          // 0x4C
-    UNIMAP_END,             // 0x4D
+    UNIMAP_APPLICATION,     // 0x4D
     UNIMAP_PGDOWN,          // 0x4E
     UNIMAP_RIGHT,           // 0x4F
     UNIMAP_LEFT,            // 0x50
@@ -116,7 +113,7 @@ enum unimap_position_codes {
     UNIMAP_KP_0,            // 0x62
     UNIMAP_KP_DOT,          // 0x63
     UNIMAP_NONUS_BSLASH,    // 0x64 ISO UK backslash
-    UNIMAP_APPLICATION,     // 0x65
+    UNIMAP_END,             // 0x65
     UNIMAP_KP_COMMA,        // 0x66
     UNIMAP_KP_EQUAL,        // 0x67
     UNIMAP_F13,             // 0x68
@@ -138,8 +135,8 @@ enum unimap_position_codes {
     UNIMAP_LCTRL,           // 0x78
     UNIMAP_LSHIFT,          // 0x79
     UNIMAP_LALT,            // 0x7A
-    UNIMAP_LGUI,            // 0x7B
-    UNIMAP_RCTRL,           // 0x7C
+    UNIMAP_RCTRL,           // 0x7B
+    UNIMAP_LGUI,            // 0x7C
     UNIMAP_RSHIFT,          // 0x7D
     UNIMAP_RALT,            // 0x7E
     UNIMAP_RGUI,            // 0x7F
