@@ -1,23 +1,20 @@
 #include <stdint.h>
 #include <stdbool.h>
+#include "print.h"
 #include "matrix.h"
 #include "ps2.h"
 #include "timer.h"
 #include "action.h"
 #include "host.h"
 #include "debug.h"
+#include "util.h"
+#include "pio_ps2_converter.h"
 
 #define print_matrix_row(row)  print_bin_reverse8(matrix_get_row(row))
 #define print_matrix_header()  print("\nr/c 01234567\n")
 #define matrix_bitpop(i)       bitpop(matrix[i])
 #define ROW_SHIFTER ((uint8_t)1)
 
-typedef enum { NONE, PC_AT, PC_TERMINAL, PC_MOUSE } keyboard_kind_t;
-#define KEYBOARD_KIND_STR(kind) \
-    (kind == PC_AT ? "AT" :   \
-     kind == PC_TERMINAL ? "TERMINAL" :   \
-     kind == PC_MOUSE ? "MOUSE" :   \
-     "NONE")
 #define ID_STR(id)  (id == 0xFFFE ? "_????" : \
                     (id == 0xFFFD ? "_Z150" : \
                     (id == 0x0000 ? "_AT84" : \
@@ -36,8 +33,7 @@ static uint8_t translate_5576_cs2_e0(uint8_t code);
 static uint8_t translate_5576_cs3(uint8_t code);
 static uint8_t translate_televideo_dec_cs3(uint8_t code);
 
-static uint8_t matrix[MATRIX_ROWS];
-static bool is_modified = false;
+static matrix_row_t matrix[MATRIX_ROWS];
 uint16_t keyboard_id = 0x0000;
 uint8_t current_protocol = 0;
 keyboard_kind_t keyboard_kind = NONE;
@@ -56,21 +52,25 @@ __attribute__((weak)) void matrix_scan_user(void) {}
 static uint16_t read_keyboard_id(void)
 {
     uint16_t id = 0;
-    int16_t  code = 0;
+    uint8_t code = 0;
 
     // Read ID
     code = ps2_host_send(0xF2);
+    xprintf("Code1: %02X\n", code);
     if (code == -1) { id = 0xFFFF; goto DONE; }     // No keyboard
     if (code != 0xFA) { id = 0xFFFE; goto DONE; }   // Broken PS/2?
 
     // ID takes 500ms max TechRef [8] 4-41
     code = read_wait(500);
+    xprintf("Code2: %02X\n", code);
     if (code == -1) { id = 0x0000; goto DONE; }     // AT
     id = (code & 0xFF)<<8;
 
     // Mouse responds with one-byte 00, this returns 00FF [y] p.14
     code = read_wait(500);
+    xprintf("Code3: %02X\n", code);
     id |= code & 0xFF;
+    xprintf("ID: %04X\n", id);
 
 DONE:
     // Enable
@@ -82,8 +82,8 @@ DONE:
 int16_t read_wait(uint16_t wait_ms)
 {
     uint16_t start = timer_read();
-    int16_t code;
-    while ((code = ps2_host_recv()) == -1 && timer_elapsed(start) < wait_ms);
+    int8_t code;
+    while ((code = ps2_host_recv()) == 0 && timer_elapsed(start) < wait_ms);
     return code;
 }
 
@@ -108,7 +108,8 @@ static int8_t process_cs2(uint8_t code)
             if (0xAB90 == keyboard_id || 0xAB91 == keyboard_id) {
                 code = translate_5576_cs2(code);
             }
-            switch (code) {
+            xprintf("Code: %02X\n", code);
+           switch (code) {
                 case 0xE0:
                     state = cE0;
                     break;
@@ -678,13 +679,9 @@ uint8_t matrix_scan(void)
 
             init_time = timer_read();
             state = WAIT_SETTLE;
-//            ps2_host_enable();
             break;
         case WAIT_SETTLE:
-            dprintln("BEFORE RECEIVE");
             while (ps2_host_recv() != 0) ; // read data
-            dprintln("AFTER RECEIVE");
-
             // wait for keyboard to settle after plugin
             if (timer_elapsed(init_time) > 3000) {
                 state = AT_RESET;
@@ -714,7 +711,8 @@ uint8_t matrix_scan(void)
                 state = READ_ID;
             }
             */
-            if (ps2_host_recv() != -1) {  // wait for AA
+            xprintf("WAA\n");
+            if (ps2_host_recv() != 0) {  // wait for AA
                 xprintf("W%u ", timer_read());
                 init_time = timer_read();
                 state = WAIT_AABF;
@@ -723,10 +721,11 @@ uint8_t matrix_scan(void)
         case WAIT_AABF:
             // NOTE: we can omit to wait BF BF
             // ID takes 500ms max? TechRef [8] 4-41, though 1ms is enough for 122-key Terminal 6110345
+            xprintf("WAABF\n");
             if (timer_elapsed(init_time) > 500) {
                 state = READ_ID;
             }
-            if (ps2_host_recv() != -1) {  // wait for BF
+            if (ps2_host_recv() != 0) {  // wait for BF
                 xprintf("W%u ", timer_read());
                 init_time = timer_read();
                 state = WAIT_AABFBF;
@@ -736,7 +735,7 @@ uint8_t matrix_scan(void)
             if (timer_elapsed(init_time) > 500) {
                 state = READ_ID;
             }
-            if (ps2_host_recv() != -1) {  // wait for BF
+            if (ps2_host_recv() != 0) {  // wait for BF
                 xprintf("W%u ", timer_read());
                 state = READ_ID;
             }
@@ -830,7 +829,7 @@ uint8_t matrix_scan(void)
                 case PC_TERMINAL:
                     // Set all keys to make/break type
                     ps2_host_send(0xF8);
-                    // This should not be harmful
+                    // This should not be hankkkrmful
                     led_set(host_keyboard_leds());
                     break;
                 default:
@@ -840,17 +839,18 @@ uint8_t matrix_scan(void)
             xprintf("L%u ", timer_read());
         case LOOP:
             {
-                uint16_t code = ps2_host_recv();
-                if (code == -1) {
+                uint8_t code = ps2_host_recv();
+                if (!code) {
                     // no code
                     break;
                 }
+                xprintf("C%02X\n", code);
 
                 // Keyboard Error/Overrun([3]p.26) or Buffer full
                 // Scan Code Set 1: 0xFF
                 // Scan Code Set 2 and 3: 0x00
                 // Buffer full(ps2_ERR_FULL): 0xFF
-                if (code == 0x00 || code == 0xFF) {
+                if (code == 0xFF) {
                     // clear stuck keys
                     matrix_clear();
                     clear_keyboard();
@@ -861,6 +861,7 @@ uint8_t matrix_scan(void)
 
                 switch (keyboard_kind) {
                     case PC_AT:
+                        xprintf("PC%02X\n", code);
                         if (process_cs2(code) == -1) state = ERROR;
                         break;
                     case PC_TERMINAL:
@@ -909,25 +910,62 @@ uint8_t matrix_key_count(void)
     return count;
 }
 
+inline
+static uint8_t to_unimap(uint8_t code) {
+    uint8_t row = ROW(code);
+    uint8_t col = COL(code);
+    switch (keyboard_kind) {
+        case PC_AT:
+            return pgm_read_byte(&unimap_cs2[row][col]);
+        case PC_TERMINAL:
+            return pgm_read_byte(&unimap_cs3[row][col]);
+        default:
+            return UNIMAP_NO;
+    }
+}
 
 inline
 static void matrix_make(uint8_t code)
 {
-    xprintf("make %02X\r\n", code);
-    if (!matrix_is_on(ROW(code), COL(code))) {
-        matrix[ROW(code)] |= 1<<COL(code);
-        is_modified = true;
+    uint8_t newcode=to_unimap(code);
+    if (!matrix_is_on(ROW(newcode), COL(newcode))) {
+        matrix[ROW(newcode)] |= 1<<COL(newcode);
+        matrix_print();
     }
 }
 
 inline
 static void matrix_break(uint8_t code)
 {
-    xprintf("break %02X\r\n", code);
-    if (matrix_is_on(ROW(code), COL(code))) {
-        matrix[ROW(code)] &= ~(1<<COL(code));
-        is_modified = true;
+    uint8_t newcode=to_unimap(code);
+    if (matrix_is_on(ROW(newcode), COL(newcode))) {
+        matrix[ROW(newcode)] &= ~(1<<COL(newcode));
     }
+}
+
+void matrix_init(void)
+{
+    debug_enable = true;
+    debug_matrix = true;
+    wait_ms(2500);
+    xprintf("TURNING ON POWER\n");
+    setPinOutput(GP16);
+    writePinHigh(GP16);
+    wait_ms(100);
+    setPinOutput(GP17);
+    writePinHigh(GP17);
+
+    ps2_host_init();
+    xprintf("PS/2 INITIALIZED\n");
+
+    wait_ms(2000);
+
+    // initialize matrix state: all keys off
+    for (uint8_t i=0; i < MATRIX_ROWS; i++) matrix[i] = 0x00;
+
+    matrix_init_kb();
+    xprintf("KEYBOARD INITIALIZED\n");
+    return;
 }
 
 void matrix_print(void)
@@ -942,44 +980,37 @@ void matrix_print(void)
 
     for (uint8_t row = 0; row < MATRIX_ROWS; row++) {
 
-//#if (MATRIX_COLS <= 8)
-//        xprintf("%02X: %08b%s\n", row, bitrev(matrix_get_row(row)),
-//#elif (MATRIX_COLS <= 16)
-//        xprintf("%02X: %016b%s\n", row, bitrev16(matrix_get_row(row)),
-//#elif (MATRIX_COLS <= 32)
-//        xprintf("%02X: %032b%s\n", row, bitrev32(matrix_get_row(row)),
-//#endif
+#if (MATRIX_COLS <= 8)
+        xprintf("%02X: %u%s\n", row, bitrev(matrix_get_row(row)),
+#elif (MATRIX_COLS <= 16)
+        xprintf("%02X: %u%s\n", row, bitrev16(matrix_get_row(row)),
+#elif (MATRIX_COLS <= 32)
+        xprintf("%02X: %ub%s\n", row, bitrev32(matrix_get_row(row)),
+#endif
 #ifdef MATRIX_HAS_GHOST
         matrix_has_ghost_in_row(row) ?  " <ghost" : ""
+#else
+        ""
 #endif
+        );
     }
 }
 
-void matrix_init(void)
+#ifdef MATRIX_HAS_GHOST
+__attribute__ ((weak))
+bool matrix_has_ghost_in_row(uint8_t row)
 {
-    debug_enable   = true;
-    debug_matrix   = true;
-    debug_keyboard = true;
-    debug_mouse    = true;
+    matrix_row_t matrix_row = matrix_get_row(row);
+    // No ghost exists when less than 2 keys are down on the row
+    if (((matrix_row - 1) & matrix_row) == 0)
+        return false;
 
-    wait_ms(3500);
-    xprintf("TURNING ON POWER\n");
-    setPinOutput(GP16);
-    writePinHigh(GP16);
-    wait_ms(100);
-    setPinOutput(GP17);
-    writePinHigh(GP17);
-    wait_ms(2000);
-
-    ps2_host_init();
-    xprintf("PS/2 INITIALIZED\n");
-
-
-    // initialize matrix state: all keys off
-    for (uint8_t i=0; i < MATRIX_ROWS; i++) matrix[i] = 0x00;
-
-    matrix_init_kb();
-    xprintf("KEYBOARD INITIALIZED\n");
-    return;
+    // Ghost occurs when the row shares column line with other row
+    for (uint8_t i=0; i < MATRIX_ROWS; i++) {
+        if (i != row && (matrix_get_row(i) & matrix_row))
+            return true;
+    }
+    return false;
 }
+#endif
 

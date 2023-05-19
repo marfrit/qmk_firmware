@@ -101,10 +101,9 @@ https://en.wikipedia.org/wiki/Keyboard_layout#Hangul_.28for_Korean.29
 */
 
 
-typedef enum { NONE, PC_XT, PC_AT, PC_TERMINAL, PC_MOUSE } keyboard_kind_t;
+typedef enum { NONE, PC_AT, PC_TERMINAL, PC_MOUSE } keyboard_kind_t;
 #define KEYBOARD_KIND_STR(kind) \
-    (kind == PC_XT ? "XT" :   \
-     kind == PC_AT ? "AT" :   \
+    (kind == PC_AT ? "AT" :   \
      kind == PC_TERMINAL ? "TERMINAL" :   \
      kind == PC_MOUSE ? "MOUSE" :   \
      "NONE")
@@ -112,3 +111,5 @@ typedef enum { NONE, PC_XT, PC_AT, PC_TERMINAL, PC_MOUSE } keyboard_kind_t;
 extern const uint8_t PROGMEM unimap_cs1[MATRIX_ROWS][MATRIX_COLS];
 extern const uint8_t PROGMEM unimap_cs2[MATRIX_ROWS][MATRIX_COLS];
 extern const uint8_t PROGMEM unimap_cs3[MATRIX_ROWS][MATRIX_COLS];
+
+
