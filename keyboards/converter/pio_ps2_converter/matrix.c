@@ -17,7 +17,7 @@
 char *int2bin(uint16_t a, char *buffer, int buf_size) {
     buffer += (buf_size - 1);
 
-    for (int i = 15; i >= 0; i--) {
+    for (int i = BUF_SIZE - 2; i >= 0; i--) {
         *buffer-- = (a & 1) + '0';
 
         a >>= 1;
@@ -26,7 +26,7 @@ char *int2bin(uint16_t a, char *buffer, int buf_size) {
     return buffer;
 }
 
-#define BUF_SIZE 17
+#define BUF_SIZE (MARTRIX_ROWS + 1)
 
 #define print_matrix_row(row) print_bin_reverse8(matrix_get_row(row))
 #define print_matrix_header() print("\nr/c 01234567\n")
@@ -1040,11 +1040,11 @@ void matrix_init(void) {
     debug_matrix = true;
     wait_ms(2500);
     xprintf("TURNING ON POWER\n");
-    setPinOutput(GP16);
-    writePinHigh(GP16);
+    setPinOutput(POWERPIN1);
+    writePinHigh(POWERPIN1);
     wait_ms(100);
-    setPinOutput(GP17);
-    writePinHigh(GP17);
+    setPinOutput(POWERPIN2);
+    writePinHigh(POWERPIN2);
 
     ps2_host_init();
     xprintf("PS/2 INITIALIZED\n");
