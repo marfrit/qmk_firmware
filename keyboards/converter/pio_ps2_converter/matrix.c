@@ -10,6 +10,8 @@
 #include "util.h"
 #include "pio_ps2_converter.h"
 
+#define BUF_SIZE (MATRIX_ROWS + 1)
+
 // buffer must have length >= sizeof(int) + 1
 // Write to the buffer backwards so that the binary representation
 // is in the correct order i.e.  the LSB is on the far right
@@ -25,8 +27,6 @@ char *int2bin(uint16_t a, char *buffer, int buf_size) {
 
     return buffer;
 }
-
-#define BUF_SIZE (MARTRIX_ROWS + 1)
 
 #define print_matrix_row(row) print_bin_reverse8(matrix_get_row(row))
 #define print_matrix_header() print("\nr/c 01234567\n")
@@ -1105,3 +1105,35 @@ __attribute__((weak)) bool matrix_has_ghost_in_row(uint8_t row) {
     return false;
 }
 #endif
+
+void led_set(uint8_t usb_led)
+{
+    uint8_t ps2_led = 0;
+    // Sending before keyboard recognition may be harmful for XT keyboard
+    if (keyboard_kind == NONE) return;
+
+    // It should be safe to send the command to keyboards with AT protocol
+    // - IBM Terminal doesn't support the command and response with 0xFE but it is not harmful.
+    // - Some other Terminals like G80-2551 supports the command.
+    //   https://geekhack.org/index.php?topic=103648.msg2894921#msg2894921
+
+    // TODO: PC_TERMINAL_IBM_RT support
+    if (usb_led &  (1<<USB_LED_SCROLL_LOCK)) {
+        ps2_led |= (1<<PS2_LED_SCROLL_LOCK);
+    }
+    if (usb_led &  (1<<USB_LED_NUM_LOCK)) {
+        ps2_led |= (1<<PS2_LED_NUM_LOCK);
+    }
+    if (usb_led &  (1<<USB_LED_CAPS_LOCK)) {
+        ps2_led |= (1<<PS2_LED_CAPS_LOCK);
+    }
+    ps2_host_set_led(ps2_led);
+}
+
+/* send LED state to keyboard */
+void ps2_host_set_led(uint8_t led)
+{
+    if (0xFA == ps2_host_send(0xED)) {
+        ps2_host_send(led);
+    }
+}

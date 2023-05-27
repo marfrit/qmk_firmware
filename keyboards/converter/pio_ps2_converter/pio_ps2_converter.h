@@ -112,4 +112,7 @@ extern const uint8_t PROGMEM unimap_cs1[MATRIX_ROWS][MATRIX_COLS];
 extern const uint8_t PROGMEM unimap_cs2[MATRIX_ROWS][MATRIX_COLS];
 extern const uint8_t PROGMEM unimap_cs3[MATRIX_ROWS][MATRIX_COLS];
 
+#define PS2_LED_SCROLL_LOCK 0
+#define PS2_LED_NUM_LOCK    1
+#define PS2_LED_CAPS_LOCK   2
 

@@ -18,4 +18,4 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 #define POWERPIN1 GP16
-#define POWERPIN2 GT17
+#define POWERPIN2 GP17
