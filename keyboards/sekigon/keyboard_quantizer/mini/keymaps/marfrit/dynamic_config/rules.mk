@@ -1,0 +1,10 @@
+SRC += dynamic_config.c
+SRC += dynamic_config_keymap.c
+SRC += dynamic_config_combo.c 
+SRC += dynamic_config_tap_dance.c 
+SRC += dynamic_config_leader.c 
+SRC += dynamic_config_override.c 
+SRC += dynamic_config_load.c
+SRC += dynamic_config_macro.c
+SRC += ascii_to_keycode_lut.c
+SRC += ascii_to_keycode_lut_set.c
