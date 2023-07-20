@@ -4,11 +4,11 @@
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 	[_HIEAO] = LAYOUT_wrapper(
-        ____HIEAO_L1____,                       ____HIEAO_R1____,
-        ____HIEAO_L2____,                       ____HIEAO_R2____,
-        ____HIEAO_L3____,                       ____HIEAO_R3____,
-      KC_LGUI, KC_LCTL, KC_SPC, KC_ENT,         KC_SPC,  KC_SPC, KC_RCTL, KC_RGUI,
-      KC_LGUI, FUNC(KC_PGUP), SYMB(KC_PGDN), NAVI(KC_SPC), NAVI(KC_BSPC), SYMB(KC_DEL), FUNC(KC_ENT), KC_LGUI
+    ____HIEAO_L1____,                                    ____HIEAO_R1____,
+    ____HIEAO_L2____,                                    ____HIEAO_R2____,
+    ____HIEAO_L3____,                                    ____HIEAO_R3____,
+    KC_LSFT, KC_LALT, KC_UP, KC_DOWN,                    KC_LEFT,  KC_RGHT, KC_ENT, KC_RSFT,
+    KC_LCTL, FUNC(KC_PGUP), SYMB(KC_PGDN), NAVI(KC_SPC), NAVI(KC_BSPC), SYMB(KC_DEL), FUNC(KC_ENT), KC_RALT
         ),
 	[_SYMBOLS] = LAYOUT_wrapper(
         ___SYMBOL_L1____,                       ___SYMBOL_R1____,
