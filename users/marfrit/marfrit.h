@@ -85,7 +85,7 @@ enum custom_keycodes {
 #define _DIACRITICS_R3__                                                             KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS
 
 #define __FUNCTION_L1___    ____FKEYS_B1____, RGB_TOG
-#define __FUNCTION_L2___    ____FKEYS_B2____, KC_TRNS
+#define __FUNCTION_L2___    ____FKEYS_B2____, RGB_MOD
 #define __FUNCTION_L3___    ____FKEYS_B3____, KC_TRNS
 #define __FUNCTION_R1___                               RGB_SAI, RGB_HUI, RGB_VAI,  LALT(KC_F4), QK_BOOT
 #define __FUNCTION_R2___                               RGB_SAD, RGB_HUD, RGB_VAD,  KC_TRNS,     KC_TRNS
