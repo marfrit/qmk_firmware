@@ -5,6 +5,10 @@
     "usb": {
         "device_version": "0.1.0"
     },
+    "rgb_matrix": {
+        "driver": "ws2812",
+        "timeout": 300000
+    },
     "matrix_pins": {
         "cols": ["C6", "D7", "E6", "B4", "B5"],
         "rows": ["F4", "F5", "F6", "F7"]
@@ -17,6 +21,9 @@
     },
     "bootmagic": {
         "matrix": [3, 0]
+    },
+    "ws2812": {
+        "pin": "D1"
     },
     "processor": "atmega32u4",
     "bootloader": "caterina",

@@ -8,6 +8,24 @@
         "pid": "0x0018",
         "device_version": "0.0.3"
     },
+    "rgblight": {
+        "led_count": 3,
+        "animations": {
+            "breathing": true,
+            "rainbow_mood": true,
+            "rainbow_swirl": true,
+            "snake": true,
+            "knight": true,
+            "christmas": true,
+            "static_gradient": true,
+            "rgb_test": true,
+            "alternating": true,
+            "twinkle": true
+        }
+    },
+    "ws2812": {
+        "pin": "B0"
+    },
     "matrix_pins": {
         "cols": ["B2", "B6", "B5", "B4"],
         "rows": ["B1", "F7", "F6", "F5", "F4"]

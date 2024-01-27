@@ -8,9 +8,18 @@
     "pid": "0x4C50",
     "device_version": "99.9.9"
   },
+  "rgb_matrix": {
+    "driver": "ws2812",
+    "sat_steps": 8,
+    "val_steps": 8,
+    "speed_steps": 10
+  },
   "matrix_pins": {
     "cols": ["B0", "B1", "B2", "B3"],
     "rows": ["D4", "D6", "D7", "B4", "B5"]
+  },
+  "ws2812": {
+    "pin": "F7"
   },
   "diode_direction": "COL2ROW",
   "encoder": {

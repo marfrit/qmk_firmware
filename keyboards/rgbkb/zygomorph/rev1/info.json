@@ -8,6 +8,9 @@
       "pid": "0x3060",
       "device_version": "0.0.1"
     },
+    "rgb_matrix": {
+      "driver": "ws2812"
+    },
     "matrix_pins": {
       "cols": ["F4", "F6", "C7", "C6", "B6", "D4"],
       "rows": ["F1", "F5", "F7", "B5", "B4"]
@@ -20,6 +23,24 @@
     },
     "split": {
       "soft_serial_pin": "D3"
+    },
+    "rgblight": {
+      "split_count": [30, 30],
+      "animations": {
+        "breathing": true,
+        "rainbow_mood": true,
+        "rainbow_swirl": true,
+        "snake": true,
+        "knight": true,
+        "christmas": true,
+        "static_gradient": true,
+        "rgb_test": true,
+        "alternating": true,
+        "twinkle": true
+      }
+    },
+    "ws2812": {
+      "pin": "B7"
     },
     "processor": "atmega32u4",
     "bootloader": "qmk-dfu",

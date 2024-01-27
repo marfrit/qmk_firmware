@@ -8,16 +8,24 @@
         "pid": "0x7342",
         "device_version": "0.0.1"
     },
+    "rgb_matrix": {
+        "driver": "ws2812"
+    },
     "matrix_pins": {
         "cols": ["B13", "B14", "B3", "A4", "A6"],
         "rows": ["B15", "A5", "A3", "A15", "B7", "B8"]
     },
     "diode_direction": "COL2ROW",
+    "dynamic_keymap": {
+        "layer_count": 8
+    },
     "backlight": {
-        "driver": "software",
         "pin": "B11",
         "levels": 5,
         "on_state": 0
+    },
+    "ws2812": {
+        "pin": "B12"
     },
     "processor": "STM32F103",
     "bootloader": "stm32duino",

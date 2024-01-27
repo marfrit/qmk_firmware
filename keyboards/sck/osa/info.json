@@ -18,6 +18,14 @@
         "num_lock": "C7",
         "scroll_lock": "B6"
     },
+    "rgblight": {
+        "hue_steps": 10,
+        "led_count": 9,
+        "sleep": true
+    },
+    "ws2812": {
+        "pin": "D4"
+    },
     "processor": "atmega32u4",
     "bootloader": "atmel-dfu",
     "community_layouts": ["alice", "alice_split_bs"],

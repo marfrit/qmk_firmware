@@ -17,14 +17,14 @@
 #include "rgb_functions.h"
 
 #ifdef RGBLIGHT_ENABLE
-#undef RGB_DI_PIN
-#define RGB_DI_PIN RGBLIGHT_DI_PIN
+#undef WS2812_DI_PIN
+#define WS2812_DI_PIN RGBLIGHT_DI_PIN
 
 #define ws2812_setleds ws2812_rgb_setleds
 
 #include "ws2812_bitbang.c"
 
-void rgblight_call_driver(LED_TYPE *start_led, uint8_t num_leds) {
+void rgblight_call_driver(rgb_led_t *start_led, uint8_t num_leds) {
     ws2812_setleds(start_led, num_leds);
 }
 #endif

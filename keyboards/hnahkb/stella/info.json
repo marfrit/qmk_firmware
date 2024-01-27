@@ -22,6 +22,12 @@
         "scroll_lock": "B7",
         "on_state": 0
     },
+    "rgblight": {
+        "led_count": 14,
+    },
+    "ws2812": {
+        "pin": "E2"
+    },
     "processor": "atmega32u4",
     "bootloader": "atmel-dfu",
     "community_layouts": ["tkl_ansi", "tkl_iso"],

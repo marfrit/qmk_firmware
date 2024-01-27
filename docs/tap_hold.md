@@ -296,7 +296,7 @@ However, this slightly different sequence will not be affected by the “permiss
 
 In the sequence above the dual-role key is released before the other key is released, and if that happens within the tapping term, the “permissive hold” mode will still choose the tap action for the dual-role key, and the sequence will be registered as `al` by the host. We could describe this as a “rolling press” (the two keys' key down and key up events behave as if you were rolling a ball across the two keys, first pressing each key down in sequence and then releasing them in the same order).
 
-?> The `PERMISSIVE_HOLD` option is not noticeable if you also enable `HOLD_ON_OTHER_KEY_PRESS` because the latter option considers both the “nested tap” and “rolling press” sequences like shown above as a hold action, not the tap action. `HOLD_ON_OTHER_KEY_PRESS` makes the Tap-Or-Hold decision earlier in the chain of key events, thus taking a precedence over `PERMISSIVE_HOLD`.  This remark also applies to default mod-taps.
+?> The `PERMISSIVE_HOLD` option is not noticeable if you also enable `HOLD_ON_OTHER_KEY_PRESS` because the latter option considers both the “nested tap” and “rolling press” sequences like shown above as a hold action, not the tap action. `HOLD_ON_OTHER_KEY_PRESS` makes the Tap-Or-Hold decision earlier in the chain of key events, thus taking a precedence over `PERMISSIVE_HOLD`.
 
 For more granular control of this feature, you can add the following to your `config.h`:
 
@@ -351,8 +351,6 @@ An example of a sequence that is affected by the “hold on other key press” m
 ```
 
 Normally, if you do all this within the `TAPPING_TERM` (default: 200ms), this will be registered as `al` by the firmware and host system.  With the `HOLD_ON_OTHER_KEY_PRESS` option enabled, the Layer Tap key is considered as a layer switch if another key is pressed, and the above sequence would be registered as `KC_RGHT` (the mapping of `L` on layer 2).
-
-?> The `HOLD_ON_OTHER_KEY_PRESS` option is essentially redundant with the default mod-tap behaviour. The only notable difference is that `HOLD_ON_OTHER_KEY_PRESS` reduces the delay before the key events are made visible to the host.
 
 For more granular control of this feature, you can add the following to your `config.h`:
 
@@ -462,6 +460,31 @@ bool get_retro_tapping(uint16_t keycode, keyrecord_t *record) {
 }
 ```
 
+If the programs you use bind an action to taps of modifier keys (e.g. tapping left GUI to bring up the applications menu or tapping left Alt to focus the menu bar), you may find that using retro-tapping falsely triggers those actions. To counteract this, you can define a `DUMMY_MOD_NEUTRALIZER_KEYCODE` in `config.h` that will get sent in between the register and unregister events of a held mod-tap key. That way, the programs on your computer will no longer interpret the mod suppression induced by retro-tapping as a lone tap of a modifier key and will thus not falsely trigger the undesired action.
+
+Naturally, for this technique to be effective, you must choose a `DUMMY_MOD_NEUTRALIZER_KEYCODE` for which no keyboard shortcuts are bound to. Recommended values are: `KC_RIGHT_CTRL` or `KC_F18`. 
+Please note that `DUMMY_MOD_NEUTRALIZER_KEYCODE` must be a basic, unmodified, HID keycode so values like `KC_NO`, `KC_TRANSPARENT` or `KC_PIPE` aka `S(KC_BACKSLASH)` are not permitted.
+
+By default, only left Alt and left GUI are neutralized. If you want to change the list of applicable modifier masks, use the following in your `config.h`:
+
+```c
+#define MODS_TO_NEUTRALIZE { <mod_mask_1>, <mod_mask_2>, ... }
+```
+
+Examples:
+
+```c
+#define DUMMY_MOD_NEUTRALIZER_KEYCODE KC_RIGHT_CTRL
+
+// Neutralize left alt and left GUI (Default value)
+#define MODS_TO_NEUTRALIZE { MOD_BIT(KC_LEFT_ALT), MOD_BIT(KC_LEFT_GUI) }
+
+// Neutralize left alt, left GUI, right GUI and left Control+Shift
+#define MODS_TO_NEUTRALIZE { MOD_BIT(KC_LEFT_ALT), MOD_BIT(KC_LEFT_GUI), MOD_BIT(KC_RIGHT_GUI), MOD_BIT(KC_LEFT_CTRL)|MOD_BIT(KC_LEFT_SHIFT) }
+```
+
+!> Do not use `MOD_xxx` constants like `MOD_LSFT` or `MOD_RALT`, since they're 5-bit packed bit-arrays while `MODS_TO_NEUTRALIZE` expects a list of 8-bit packed bit-arrays. Use `MOD_BIT(<kc>)` or `MOD_MASK_xxx` instead.
+
 ### Retro Shift
 
 [Auto Shift,](feature_auto_shift.md) has its own version of `retro tapping` called `retro shift`. It is extremely similar to `retro tapping`, but holding the key past `AUTO_SHIFT_TIMEOUT` results in the value it sends being shifted. Other configurations also affect it differently; see [here](feature_auto_shift.md#retro-shift) for more information.
@@ -470,7 +493,7 @@ bool get_retro_tapping(uint16_t keycode, keyrecord_t *record) {
 
 One thing that you may notice is that we include the key record for all of the "per key" functions, and may be wondering why we do that.
 
-Well, it's simple really: customization.  But specifically, it depends on how your keyboard is wired up.  For instance, if each row is actually using a row in the keyboard's matrix, then it may be simpler to use `if (record->event.row == 3)` instead of checking a whole bunch of keycodes.  Which is especially good for those people using the Tap Hold type keys on the home row. So you could fine-tune those to not interfere with your normal typing.
+Well, it's simple really: customization.  But specifically, it depends on how your keyboard is wired up.  For instance, if each row is actually using a row in the keyboard's matrix, then it may be simpler to use `if (record->event.key.row == 3)` instead of checking a whole bunch of keycodes.  Which is especially good for those people using the Tap Hold type keys on the home row. So you could fine-tune those to not interfere with your normal typing.
 
 ## Why are there no `*_kb` or `*_user` functions?!
 

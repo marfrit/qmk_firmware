@@ -5,6 +5,25 @@
         "device_version": "0.0.1",
         "pid": "0x1828"
     },
+    "rgblight": {
+        "led_count": 38,
+        "split_count": [19, 19],
+        "animations": {
+            "breathing": true,
+            "rainbow_mood": true,
+            "rainbow_swirl": true,
+            "snake": true,
+            "knight": true,
+            "christmas": true,
+            "static_gradient": true,
+            "rgb_test": true,
+            "alternating": true,
+            "twinkle": true
+        }
+    },
+    "ws2812": {
+        "pin": "D2"
+    },
     "matrix_pins": {
         "cols": ["B4", "E6", "C6", "B1", "B3", "B2"],
         "rows": ["D7", "B5", "F7", "F6", "B6"]

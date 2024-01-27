@@ -10,7 +10,6 @@
     },
     "rgblight": {
         "led_count": 25,
-        "pin": "D1",
         "animations": {
             "alternating": true,
             "breathing": true,
@@ -24,6 +23,9 @@
             "twinkle": true
         }
     },
+    "ws2812": {
+        "pin": "D1"
+    },
     "usb": {
         "vid": "0xD772",
         "pid": "0x000C",
@@ -31,6 +33,9 @@
     },
     "indicators": {
         "caps_lock": "D2"
+    },
+    "qmk": {
+        "tap_keycode_delay": 10
     },
     "processor": "atmega32u4",
     "bootloader": "atmel-dfu",

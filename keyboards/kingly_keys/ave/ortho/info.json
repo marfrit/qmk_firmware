@@ -18,6 +18,15 @@
       {"pin_a": "B2", "pin_b": "B1"}
     ]
   },
+  "rgblight": {
+    "led_count": 2,
+    "animations": {
+      "breathing": true
+    }
+  },
+  "ws2812": {
+    "pin": "B7"
+  },
   "processor": "atmega32u4",
   "bootloader": "atmel-dfu",
   "layouts": {

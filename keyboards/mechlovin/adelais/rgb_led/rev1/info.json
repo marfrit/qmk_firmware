@@ -3,6 +3,9 @@
     "usb": {
         "pid": "0xAEC1"
     },
+    "rgb_matrix": {
+        "driver": "ws2812"
+    },
     "matrix_pins": {
         "cols": ["A10", "A9", "A8", "B15", "B14", "B13", "B12", "B11", "B10", "B8", "B4", "B5", "B3", "C14", "A15"],
         "rows": ["B1", "A0", "C13", "A1", "A2"]
@@ -15,6 +18,9 @@
         "caps_lock": "B2",
         "num_lock": "C15",
         "scroll_lock": "B9"
+    },
+    "ws2812": {
+        "pin": "A7"
     },
     "layout_aliases": {
         "LAYOUT_all": "LAYOUT_alice_split_bs"

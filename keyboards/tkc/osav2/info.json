@@ -8,12 +8,32 @@
         "pid": "0x0005",
         "device_version": "0.0.1"
     },
+    "rgblight": {
+        "led_count": 9,
+        "sleep": true,
+        "animations": {
+            "breathing": true,
+            "rainbow_mood": true,
+            "rainbow_swirl": true,
+            "snake": true,
+            "knight": true,
+            "christmas": true,
+            "static_gradient": true,
+            "rgb_test": true,
+            "alternating": true,
+            "twinkle": true
+        }
+    },
+    "ws2812": {
+        "pin": "D4"
+    },
     "matrix_pins": {
         "cols": ["B4", "D7", "D5", "D3", "D2", "D0", "D1", "B5"],
         "rows": ["F0", "F1", "F4", "F5", "F6", "B0", "B1", "B2", "B3", "B7"]
     },
     "diode_direction": "COL2ROW",
     "backlight": {
+        "driver": "timer",
         "pin": "D6",
         "breathing": true
     },

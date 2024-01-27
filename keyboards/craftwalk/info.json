@@ -8,6 +8,24 @@
       "pid": "0x2E8F",
       "device_version": "0.0.1"
     },
+    "rgblight": {
+        "saturation_steps": 8,
+        "brightness_steps": 8,
+        "led_count": 19,
+        "sleep": true,
+        "animations": {
+            "breathing": true,
+            "rainbow_mood": true,
+            "rainbow_swirl": true,
+            "snake": true,
+            "static_gradient": true,
+            "rgb_test": true,
+            "alternating": true
+        }
+    },
+    "ws2812": {
+      "pin": "D3"
+    },
     "matrix_pins": {
       "cols": ["B1", "F7", "F5", "F4", "B2", "E6", "B4"],
       "rows": ["F6", "B3", "B5"]
