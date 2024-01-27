@@ -31,7 +31,8 @@
     "cmake.configureOnOpen": false,
     "cmake.sourceDirectory": "/home/mfritsche/src/qmk_firmware/lib/pico-sdk/src/common/boot_picoboot",
     "C_Cpp.default.includePath": [
-        "${workspaceFolder}/quantum/logging/",
         "${workspaceFolder}/**"
-    ]
+    ],
+    "C_Cpp.default.browse.limitSymbolsToIncludedHeaders": false,
+    "C_Cpp.intelliSenseEngineFallback": "enabled"
 }

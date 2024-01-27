@@ -794,7 +794,7 @@ uint8_t matrix_scan(void) {
             }
             */
             if (ps2_host_recv() != 0) { // wait for AA
-                dprintf("W%u ", timer_read());
+                uprintf("W%u ", timer_read());
                 init_time = timer_read();
                 state     = WAIT_AABF;
             }
@@ -881,7 +881,7 @@ uint8_t matrix_scan(void) {
                 }
             }
 
-            dprintf("\nID:%04X(%s%s) ", keyboard_id, KEYBOARD_KIND_STR(keyboard_kind), ID_STR(keyboard_id));
+            uprintf("\nID:%04X(%s%s) ", keyboard_id, KEYBOARD_KIND_STR(keyboard_kind), ID_STR(keyboard_id));
 
             state = SETUP;
             break;
@@ -996,7 +996,7 @@ inline static void matrix_break(uint8_t code) {
 
 void matrix_init(void) {
     wait_ms(2000);
-    dprintf("TURNING ON POWER\n");
+    uprintf("TURNING ON POWER\n");
     setPinOutput(POWERPIN1);
     writePinHigh(POWERPIN1);
     wait_ms(100);
@@ -1004,7 +1004,7 @@ void matrix_init(void) {
     writePinHigh(POWERPIN2);
 
     ps2_host_init();
-    dprintf("PS/2 INITIALIZED\n");
+    uprintf("PS/2 INITIALIZED\n");
 
     wait_ms(2000);
 
@@ -1013,7 +1013,7 @@ void matrix_init(void) {
         matrix[i] = 0x00;
 
     matrix_init_kb();
-    dprintf("KEYBOARD INITIALIZED\n");
+    uprintf("KEYBOARD INITIALIZED\n");
     return;
 }
 
