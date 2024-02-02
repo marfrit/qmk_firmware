@@ -1021,11 +1021,11 @@ void matrix_print(void) {
     dprint("matrix printing not applicable.\n");
 }
 
-void led_set(uint8_t usb_led)
+bool led_update_user(led_t usb_led)
 {
     uint8_t ps2_led = 0;
     // Sending before keyboard recognition may be harmful for XT keyboard
-    if (keyboard_kind == NONE) return;
+    if (keyboard_kind == NONE) return false;
 
     // It should be safe to send the command to keyboards with AT protocol
     // - IBM Terminal doesn't support the command and response with 0xFE but it is not harmful.
@@ -1033,16 +1033,18 @@ void led_set(uint8_t usb_led)
     //   https://geekhack.org/index.php?topic=103648.msg2894921#msg2894921
 
     // TODO: PC_TERMINAL_IBM_RT support
-    if (usb_led &  (1<<USB_LED_SCROLL_LOCK)) {
+    if (usb_led.scroll_lock) {
         ps2_led |= (1<<PS2_LED_SCROLL_LOCK);
     }
-    if (usb_led &  (1<<USB_LED_NUM_LOCK)) {
+    if (usb_led.num_lock) {
         ps2_led |= (1<<PS2_LED_NUM_LOCK);
     }
-    if (usb_led &  (1<<USB_LED_CAPS_LOCK)) {
+    if (usb_led.caps_lock) {
         ps2_led |= (1<<PS2_LED_CAPS_LOCK);
     }
     ps2_host_set_led(ps2_led);
+
+    return false;
 }
 
 /* send LED state to keyboard */
