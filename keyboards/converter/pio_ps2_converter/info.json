@@ -10,8 +10,8 @@
     "ps2": {
         "enabled": true,
         "driver": "vendor",
-        "clock_pin": "GP21",
-        "data_pin": "GP20"
+        "clock_pin": "GP19",
+        "data_pin": "GP18"
     },
     "matrix_size": {
         "rows": 8,

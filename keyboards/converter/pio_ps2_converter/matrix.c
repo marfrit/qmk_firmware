@@ -1,8 +1,9 @@
 #include <stdint.h>
 #include <stdbool.h>
+#include "config.h"
 #include "print.h"
 #include "matrix.h"
-#include "ps2.h"
+#include "ps2_keeb.h"
 #include "timer.h"
 #include "action.h"
 #include "host.h"
@@ -55,7 +56,7 @@ static uint16_t read_keyboard_id(void) {
     uint8_t  code = 0;
 
     // Read ID
-    code = ps2_host_send(0xF2);
+    code = ps2_keeb_host_send(0xF2);
 
     if (code == -1) {
         id = 0xFFFF;
@@ -90,7 +91,7 @@ DONE:
 int16_t read_wait(uint16_t wait_ms) {
     uint16_t start = timer_read();
     int8_t   code;
-    while ((code = ps2_host_recv()) == 0 && timer_elapsed(start) < wait_ms)
+    while ((code = ps2_keeb_host_recv()) == 0 && timer_elapsed(start) < wait_ms)
         ;
     return code;
 }
@@ -737,10 +738,10 @@ uint8_t matrix_scan(void) {
     bool            changed = false;
     static uint16_t init_time;
 
-    if (ps2_error && !PS2_ERR_NODATA) {
+    if (ps2_keeb_error && !PS2_ERR_NODATA) {
 
         // when recv error, neither send error nor buffer full
-        if (!(ps2_error)) {
+        if (!(ps2_keeb_error)) {
             // keyboard init again
             if (state == LOOP) {
                 state = ERROR;
@@ -748,7 +749,7 @@ uint8_t matrix_scan(void) {
         }
 
         // clear or process error
-        ps2_error = PS2_ERR_NONE;
+        ps2_keeb_error = PS2_ERR_NONE;
     }
 
     switch (state) {
@@ -763,7 +764,7 @@ uint8_t matrix_scan(void) {
             state     = WAIT_SETTLE;
             break;
         case WAIT_SETTLE:
-            while (ps2_host_recv() != 0)
+            while (ps2_keeb_host_recv() != 0)
                 ; // read data
             // wait for keyboard to settle after plugin
             if (timer_elapsed(init_time) > 3000) {
@@ -776,7 +777,7 @@ uint8_t matrix_scan(void) {
             // https://github.com/tmk/tmk_keyboard/wiki/IBM-PC-AT-Keyboard-Protocol#select-alternate-scan-codesf0
 
             // reset command
-            if (0xFA == ps2_host_send(0xFF)) {
+            if (0xFA == ps2_keeb_host_send(0xFF)) {
                 state = WAIT_AA;
             }
             break;
@@ -793,7 +794,7 @@ uint8_t matrix_scan(void) {
                 state = READ_ID;
             }
             */
-            if (ps2_host_recv() != 0) { // wait for AA
+            if (ps2_keeb_host_recv() != 0) { // wait for AA
                 uprintf("W%u ", timer_read());
                 init_time = timer_read();
                 state     = WAIT_AABF;
@@ -805,7 +806,7 @@ uint8_t matrix_scan(void) {
             if (timer_elapsed(init_time) > 500) {
                 state = READ_ID;
             }
-            if (ps2_host_recv() != 0) { // wait for BF
+            if (ps2_keeb_host_recv() != 0) { // wait for BF
                 init_time = timer_read();
                 state     = WAIT_AABFBF;
             }
@@ -814,7 +815,7 @@ uint8_t matrix_scan(void) {
             if (timer_elapsed(init_time) > 500) {
                 state = READ_ID;
             }
-            if (ps2_host_recv() != 0) { // wait for BF
+            if (ps2_keeb_host_recv() != 0) { // wait for BF
                 state = READ_ID;
             }
             break;
@@ -834,7 +835,7 @@ uint8_t matrix_scan(void) {
                 // https://github.com/tmk/tmk_keyboard/wiki/IBM-PC-AT-Keyboard-Protocol#ab86
                 // https://github.com/tmk/tmk_keyboard/wiki/IBM-PC-AT-Keyboard-Protocol#ab92
 
-                if ((0xFA == ps2_host_send(0xF0)) && (0xFA == ps2_host_send(0x03))) {
+                if ((0xFA == ps2_keeb_host_send(0xF0)) && (0xFA == ps2_keeb_host_send(0x03))) {
                     // switch to code set 3
                     keyboard_kind = PC_TERMINAL;
                 } else {
@@ -846,14 +847,14 @@ uint8_t matrix_scan(void) {
                 // https://github.com/tmk/tmk_keyboard/wiki/IBM-PC-AT-Keyboard-Protocol#ab91
 
                 keyboard_kind = PC_AT;
-                if ((0xFA == ps2_host_send(0xF0)) && (0xFA == ps2_host_send(0x82))) {
+                if ((0xFA == ps2_keeb_host_send(0xF0)) && (0xFA == ps2_keeb_host_send(0x82))) {
                     // switch to code set 82h
                     // https://github.com/tmk/tmk_keyboard/wiki/IBM-PC-AT-Keyboard-Protocol#ibm-5576-scan-codes-set
                 } else {
                     if (0xAB91 == keyboard_id) {
                         // This must be a Televideo DEC keyboard, which piggybacks on the same keyboard_id as IBM 5576-003
                         // This keyboard normally starts up using code set 1, but we request code set 2 here:
-                        if ((0xFA == ps2_host_send(0xF0)) && (0xFA == ps2_host_send(0x03))) {
+                        if ((0xFA == ps2_keeb_host_send(0xF0)) && (0xFA == ps2_keeb_host_send(0x03))) {
                             keyboard_kind = PC_TERMINAL;
                         }
                     }
@@ -870,10 +871,10 @@ uint8_t matrix_scan(void) {
             } else if (0x7F00 == (keyboard_id & 0xFF00)) { // CodeSet3 Terminal 1394204
                 keyboard_kind = PC_TERMINAL;
             } else {
-                if ((0xFA == ps2_host_send(0xF0)) && (0xFA == ps2_host_send(0x02))) {
+                if ((0xFA == ps2_keeb_host_send(0xF0)) && (0xFA == ps2_keeb_host_send(0x02))) {
                     // switch to code set 2
                     keyboard_kind = PC_AT;
-                } else if ((0xFA == ps2_host_send(0xF0)) && (0xFA == ps2_host_send(0x03))) {
+                } else if ((0xFA == ps2_keeb_host_send(0xF0)) && (0xFA == ps2_keeb_host_send(0x03))) {
                     // switch to code set 3
                     keyboard_kind = PC_TERMINAL;
                 } else {
@@ -892,7 +893,7 @@ uint8_t matrix_scan(void) {
                     break;
                 case PC_TERMINAL:
                     // Set all keys to make/break type
-                    ps2_host_send(0xF8);
+                    ps2_keeb_host_send(0xF8);
                     // This should not be hankkkrmful
                     led_set(host_keyboard_leds());
                     break;
@@ -901,7 +902,7 @@ uint8_t matrix_scan(void) {
             }
             state = LOOP;
         case LOOP: {
-            uint8_t code = ps2_host_recv();
+            uint8_t code = ps2_keeb_host_recv();
             if (!code) {
                 // no code
                 break;
@@ -995,18 +996,21 @@ inline static void matrix_break(uint8_t code) {
 }
 
 void matrix_init(void) {
+    debug_enable = true;
+    debug_keyboard = true;
+    debug_mouse = true;
+
     wait_ms(2000);
     uprintf("TURNING ON POWER\n");
-    setPinOutput(POWERPIN1);
-    writePinHigh(POWERPIN1);
+    setPinOutput(POWERPIN);
+    writePinHigh(POWERPIN);
     wait_ms(100);
-    setPinOutput(POWERPIN2);
-    writePinHigh(POWERPIN2);
+ //   writePinLow(POWERPIN);
+    setPinOutput(GP17);
+    writePinHigh(GP17);
 
-    ps2_host_init();
+    ps2_keeb_host_init();
     uprintf("PS/2 INITIALIZED\n");
-
-    wait_ms(2000);
 
     // initialize matrix state: all keys off
     for (uint8_t i = 0; i < MATRIX_ROWS; i++)
@@ -1042,15 +1046,15 @@ bool led_update_user(led_t usb_led)
     if (usb_led.caps_lock) {
         ps2_led |= (1<<PS2_LED_CAPS_LOCK);
     }
-    ps2_host_set_led(ps2_led);
+    ps2_keeb_host_set_led(ps2_led);
 
     return false;
 }
 
 /* send LED state to keyboard */
-void ps2_host_set_led(uint8_t led)
+void ps2_keeb_host_set_led(uint8_t led)
 {
-    if (0xFA == ps2_host_send(0xED)) {
-        ps2_host_send(led);
+    if (0xFA == ps2_keeb_host_send(0xED)) {
+        ps2_keeb_host_send(led);
     }
 }

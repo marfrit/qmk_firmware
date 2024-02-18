@@ -17,5 +17,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#define POWERPIN1 GP16
-#define POWERPIN2 GP17
+#define POWERPIN GP16
+#define PS2_KEEB_CLOCK_PIN GP21
+#define PS2_KEEB_DATA_PIN GP20
