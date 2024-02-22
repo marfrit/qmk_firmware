@@ -17,7 +17,6 @@ void keyboard_pre_init_user(void) {
     writePinHigh(POWERPIN1);
     setPinOutput(POWERPIN2);
     writePinHigh(POWERPIN2);
-//    wait_ms(100);
 
     wait_ms(2000);
 
