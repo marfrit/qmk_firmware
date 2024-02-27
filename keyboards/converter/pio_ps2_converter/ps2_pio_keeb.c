@@ -13,7 +13,7 @@
 
 #if defined(PS2_ENABLE)
 #    if defined(PS2_MOUSE_ENABLE)
-#        if !defined(PS2_MOUSE_USE_REMOTE_MODE)
+#        if !defined(PS2_KEEB_USE_REMOTE_MODE)
 #            define BUFFERED_MODE_KEEB_ENABLE
 #        endif
 #    else // PS2 Keyboard
@@ -135,8 +135,7 @@ void ps2_keeb_host_init(void) {
     // clang-format off
     iomode_t pin_mode = PAL_RP_PAD_IE |
                         PAL_RP_GPIO_OE |
-                        PAL_RP_PAD_SLEWFAST |
-                        PAL_RP_PAD_DRIVE12 |
+                        PAL_RP_PAD_DRIVE2 |
                         // Invert output enable so that pindirs=1 means input
                         // and indirs=0 means output. This way, out pindirs
                         // works correctly with the open-drain PS/2 interface.

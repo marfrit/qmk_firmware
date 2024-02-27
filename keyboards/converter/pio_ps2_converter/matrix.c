@@ -11,8 +11,9 @@
 #include "util.h"
 #include "pio_ps2_converter.h"
 
-#define print_matrix_row(row) print_bin_reverse8(matrix_get_row(row))
+/* #define print_matrix_row(row) print_bin_reverse8(matrix_get_row(row))
 #define print_matrix_header() print("\nr/c 01234567\n")
+ */
 #define matrix_bitpop(i) bitpop(matrix[i])
 #define ROW_SHIFTER ((uint8_t)1)
 
@@ -137,7 +138,7 @@ static int8_t process_cs2(uint8_t code) {
                 case 0xAA: // Self-test passed
                 case 0xFC: // Self-test failed
                            // replug or unstable connection probably
-                default: // normal key make
+                default:   // normal key make
                     state = INIT;
                     if (code < 0x80) {
                         matrix_make(code);
@@ -739,7 +740,6 @@ uint8_t matrix_scan(void) {
     static uint16_t init_time;
 
     if (ps2_keeb_error && !PS2_ERR_NODATA) {
-
         // when recv error, neither send error nor buffer full
         if (!(ps2_keeb_error)) {
             // keyboard init again
@@ -795,7 +795,7 @@ uint8_t matrix_scan(void) {
             }
             */
             if (ps2_keeb_host_recv() != 0) { // wait for AA
-                uprintf("W%u ", timer_read());
+                dprintf("W%u ", timer_read());
                 init_time = timer_read();
                 state     = WAIT_AABF;
             }
@@ -882,7 +882,7 @@ uint8_t matrix_scan(void) {
                 }
             }
 
-            uprintf("\nID:%04X(%s%s) ", keyboard_id, KEYBOARD_KIND_STR(keyboard_kind), ID_STR(keyboard_id));
+            dprintf("\nID:%04X(%s%s) ", keyboard_id, KEYBOARD_KIND_STR(keyboard_kind), ID_STR(keyboard_id));
 
             state = SETUP;
             break;
@@ -996,28 +996,28 @@ inline static void matrix_break(uint8_t code) {
 }
 
 void matrix_init(void) {
-    debug_enable = true;
+    debug_enable   = true;
     debug_keyboard = true;
-    debug_mouse = true;
+    debug_mouse    = true;
 
     wait_ms(2000);
-    uprintf("TURNING ON POWER\n");
+    dprint("TURNING ON POWER\n");
     setPinOutput(POWERPIN);
     writePinHigh(POWERPIN);
     wait_ms(100);
- //   writePinLow(POWERPIN);
+    //   writePinLow(POWERPIN);
     setPinOutput(GP17);
     writePinHigh(GP17);
 
     ps2_keeb_host_init();
-    uprintf("PS/2 INITIALIZED\n");
+    dprint("PS/2 INITIALIZED\n");
 
     // initialize matrix state: all keys off
     for (uint8_t i = 0; i < MATRIX_ROWS; i++)
         matrix[i] = 0x00;
 
     matrix_init_kb();
-    uprintf("KEYBOARD INITIALIZED\n");
+    dprint("KEYBOARD INITIALIZED\n");
     return;
 }
 
@@ -1025,8 +1025,7 @@ void matrix_print(void) {
     dprint("matrix printing not applicable.\n");
 }
 
-bool led_update_user(led_t usb_led)
-{
+bool led_update_user(led_t usb_led) {
     uint8_t ps2_led = 0;
     // Sending before keyboard recognition may be harmful for XT keyboard
     if (keyboard_kind == NONE) return false;
@@ -1038,13 +1037,13 @@ bool led_update_user(led_t usb_led)
 
     // TODO: PC_TERMINAL_IBM_RT support
     if (usb_led.scroll_lock) {
-        ps2_led |= (1<<PS2_LED_SCROLL_LOCK);
+        ps2_led |= (1 << PS2_LED_SCROLL_LOCK);
     }
     if (usb_led.num_lock) {
-        ps2_led |= (1<<PS2_LED_NUM_LOCK);
+        ps2_led |= (1 << PS2_LED_NUM_LOCK);
     }
     if (usb_led.caps_lock) {
-        ps2_led |= (1<<PS2_LED_CAPS_LOCK);
+        ps2_led |= (1 << PS2_LED_CAPS_LOCK);
     }
     ps2_keeb_host_set_led(ps2_led);
 
@@ -1052,8 +1051,7 @@ bool led_update_user(led_t usb_led)
 }
 
 /* send LED state to keyboard */
-void ps2_keeb_host_set_led(uint8_t led)
-{
+void ps2_keeb_host_set_led(uint8_t led) {
     if (0xFA == ps2_keeb_host_send(0xED)) {
         ps2_keeb_host_send(led);
     }

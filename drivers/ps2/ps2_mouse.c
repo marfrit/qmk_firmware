@@ -86,9 +86,9 @@ void ps2_mouse_task(void) {
 #    ifdef PS2_MOUSE_ENABLE_SCROLLING
         mouse_report.v = -(ps2_host_recv_response() & PS2_MOUSE_SCROLL_MASK);
 #    endif
-    } else {
+    } /* else {
         if (debug_mouse) print("ps2_mouse: fail to get mouse packet\n");
-    }
+    } */
 #else
     if (pbuf_has_data()) {
         mouse_report.buttons = ps2_host_recv_response();
@@ -97,9 +97,9 @@ void ps2_mouse_task(void) {
 #    ifdef PS2_MOUSE_ENABLE_SCROLLING
         mouse_report.v       = -(ps2_host_recv_response() & PS2_MOUSE_SCROLL_MASK);
 #    endif
-    } else {
+    } /* else {
         if (debug_mouse) print("ps2_mouse: fail to get mouse packet\n");
-    }
+    } */
 #endif
 
     mouse_report.buttons |= tp_buttons;
