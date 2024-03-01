@@ -795,7 +795,7 @@ uint8_t matrix_scan(void) {
             }
             */
             if (ps2_keeb_host_recv() != 0) { // wait for AA
-                dprintf("W%u ", timer_read());
+                dprintf("W%u \n", timer_read());
                 init_time = timer_read();
                 state     = WAIT_AABF;
             }
@@ -882,7 +882,7 @@ uint8_t matrix_scan(void) {
                 }
             }
 
-            dprintf("\nID:%04X(%s%s) ", keyboard_id, KEYBOARD_KIND_STR(keyboard_kind), ID_STR(keyboard_id));
+            dprintf("\nID:%04X(%s%s) \n", keyboard_id, KEYBOARD_KIND_STR(keyboard_kind), ID_STR(keyboard_id));
 
             state = SETUP;
             break;

@@ -1,4 +1,5 @@
 # Junk files
+rp2040_error*
 *.bak
 *.swp
 *~
@@ -116,3 +117,4 @@ compile_commands.json
 # VIA(L) files that don't belong in QMK repo
 via*.json
 /keyboards/**/keymaps/vial/*
+keyboards/converter/pio_ps2_converter/rp2040_error.ods

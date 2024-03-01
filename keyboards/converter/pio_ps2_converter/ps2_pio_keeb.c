@@ -11,15 +11,16 @@
 #    error PIO Driver is only available for Raspberry Pi 2040 MCUs!
 #endif
 
-#if defined(PS2_ENABLE)
-#    if defined(PS2_MOUSE_ENABLE)
-#        if !defined(PS2_KEEB_USE_REMOTE_MODE)
-#            define BUFFERED_MODE_KEEB_ENABLE
-#        endif
-#    else // PS2 Keyboard
-#        define BUFFERED_MODE_KEEB_ENABLE
-#    endif
-#endif
+#define BYTE_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c"
+#define BYTE_TO_BINARY(byte)  \
+  ((byte) & 0x80 ? '1' : '0'), \
+  ((byte) & 0x40 ? '1' : '0'), \
+  ((byte) & 0x20 ? '1' : '0'), \
+  ((byte) & 0x10 ? '1' : '0'), \
+  ((byte) & 0x08 ? '1' : '0'), \
+  ((byte) & 0x04 ? '1' : '0'), \
+  ((byte) & 0x02 ? '1' : '0'), \
+  ((byte) & 0x01 ? '1' : '0')
 
 #if PS2_KEEB_DATA_PIN + 1 != PS2_KEEB_CLOCK_PIN
 #    error PS/2 clock pin must be data pin + 1!
@@ -36,7 +37,7 @@ OSAL_IRQ_HANDLER(RP_PIO1_IRQ_0_HANDLER) {
 }
 
 #define PS2_WRAP_TARGET 0
-#define PS2_WRAP 20
+#define PS2_WRAP 22
 
 // clang-format off
 static const uint16_t ps2_program_instructions[] = {
@@ -62,13 +63,15 @@ static const uint16_t ps2_program_instructions[] = {
     0xe083, // 18: set    pindirs, 3
     0x2021, // 19: wait   0 pin, 1
     0x20a1, // 20: wait   1 pin, 1
+    0xe041, // 21: set    y, 1
+    0xa0d2, // 22: mov    isr, ::y
             //     .wrap
 };
 // clang-format on
 
 static const struct pio_program ps2_program = {
     .instructions = ps2_program_instructions,
-    .length       = 21,
+    .length       = 23,
     .origin       = -1,
 };
 
@@ -169,6 +172,9 @@ uint8_t ps2_keeb_host_send(uint8_t data) {
         frame = frame | (1 << 8);
     }
 
+    dprintf("frame_snd: "BYTE_TO_BINARY_PATTERN" "BYTE_TO_BINARY_PATTERN" "BYTE_TO_BINARY_PATTERN" "BYTE_TO_BINARY_PATTERN"\n",
+            BYTE_TO_BINARY(frame>>24), BYTE_TO_BINARY(frame>>16), BYTE_TO_BINARY(frame>>8), BYTE_TO_BINARY(frame));
+
     pio_sm_put(pio, state_machine, frame);
 
     msg_t msg = MSG_OK;
@@ -194,6 +200,9 @@ static uint8_t ps2_keeb_get_data_from_frame(uint32_t frame) {
     uint32_t parity_bit = (frame & 0b01000000000000000000000000000000) ? 1 : 0;
     uint32_t stop_bit   = (frame & 0b10000000001000000000000000000000) ? 1 : 0;
 
+    dprintf("data: 0x%02X\n", data);
+    dprintf("frame_rec: "BYTE_TO_BINARY_PATTERN" "BYTE_TO_BINARY_PATTERN" "BYTE_TO_BINARY_PATTERN" "BYTE_TO_BINARY_PATTERN"\n",
+            BYTE_TO_BINARY(frame>>24), BYTE_TO_BINARY(frame>>16), BYTE_TO_BINARY(frame>>8), BYTE_TO_BINARY(frame));
     if (start_bit != 0) {
         ps2_keeb_error = PS2_ERR_STARTBIT1;
         return 0;
@@ -225,8 +234,6 @@ uint8_t ps2_keeb_host_recv_response(void) {
     return ps2_keeb_get_data_from_frame(frame);
 }
 
-#ifdef BUFFERED_MODE_KEEB_ENABLE
-
 bool pbuf_keeb_has_data(void) {
     osalSysLock();
     bool has_data = !ibqIsEmptyI(&pio_rx_queue);
@@ -251,5 +258,3 @@ uint8_t ps2_keeb_host_recv(void) {
 
     return frame != 0 ? ps2_keeb_get_data_from_frame(frame) : 0;
 }
-
-#endif
