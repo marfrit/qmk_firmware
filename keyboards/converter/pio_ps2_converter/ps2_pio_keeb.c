@@ -1,6 +1,7 @@
 // Copyright 2022 Marek Kraus (@gamelaster)
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <stdint.h>
 #include "gpio.h"
 #include "hardware/pio.h"
 #include "hardware/clocks.h"
@@ -79,23 +80,37 @@ static int                state_machine = -1;
 static thread_reference_t tx_thread     = NULL;
 
 #define BUFFER_SIZE 32
-static input_buffers_queue_t               pio_rx_queue;
-static __attribute__((aligned(4))) uint8_t pio_rx_buffer[BQ_BUFFER_SIZE(BUFFER_SIZE, sizeof(uint32_t))];
+static input_buffers_queue_t               pio_msg_queue;
+static __attribute__((aligned(4))) uint8_t pio_msg_buffer[BQ_BUFFER_SIZE(BUFFER_SIZE, sizeof(uint32_t))];
+static input_buffers_queue_t               pio_rpl_queue;
+static __attribute__((aligned(4))) uint8_t pio_rpl_buffer[BQ_BUFFER_SIZE(BUFFER_SIZE, sizeof(uint32_t))];
 
 uint8_t ps2_keeb_error = PS2_ERR_NONE;
 
 void pio_serve_keeb_interrupt(void) {
     uint32_t irqs = pio->ints0;
+    uint32_t frame = 0;
+    uint32_t* frame_buffer;
 
     if (irqs & (PIO_IRQ0_INTF_SM0_RXNEMPTY_BITS << state_machine)) {
         osalSysLockFromISR();
-        uint32_t* frame_buffer = (uint32_t*)ibqGetEmptyBufferI(&pio_rx_queue);
+        frame = pio_sm_get(pio, state_machine);
+        uint32_t is_msg  = (frame & 0b00000000000100000000000000000000) ? 0 : 1;
+        if (is_msg) {
+            frame_buffer = (uint32_t*)ibqGetEmptyBufferI(&pio_msg_queue);
+        } else {
+            frame_buffer = (uint32_t*)ibqGetEmptyBufferI(&pio_rpl_queue);
+        }
         if (frame_buffer == NULL) {
             osalSysUnlockFromISR();
             return;
         }
-        *frame_buffer = pio_sm_get(pio, state_machine);
-        ibqPostFullBufferI(&pio_rx_queue, sizeof(uint32_t));
+        *frame_buffer = frame;
+        if (is_msg) {
+            ibqPostFullBufferI(&pio_msg_queue, sizeof(uint32_t));
+        } else {
+            ibqPostFullBufferI(&pio_rpl_queue, sizeof(uint32_t));
+        }
         osalSysUnlockFromISR();
     }
 
@@ -108,7 +123,10 @@ void pio_serve_keeb_interrupt(void) {
 }
 
 void ps2_keeb_host_init(void) {
-    ibqObjectInit(&pio_rx_queue, false, pio_rx_buffer, sizeof(uint32_t), BUFFER_SIZE, NULL, NULL);
+
+    ibqObjectInit(&pio_msg_queue, false, pio_msg_buffer, sizeof(uint32_t), BUFFER_SIZE, NULL, NULL);
+    ibqObjectInit(&pio_rpl_queue, false, pio_rpl_buffer, sizeof(uint32_t), BUFFER_SIZE, NULL, NULL);
+
     uint pio_idx = pio_get_index(pio);
 
     hal_lld_peripheral_unreset(pio_idx == 0 ? RESETS_ALLREG_PIO0 : RESETS_ALLREG_PIO1);
@@ -172,8 +190,10 @@ uint8_t ps2_keeb_host_send(uint8_t data) {
         frame = frame | (1 << 8);
     }
 
+#ifdef DEBUG_FRAMES
     dprintf("frame_snd: "BYTE_TO_BINARY_PATTERN" "BYTE_TO_BINARY_PATTERN" "BYTE_TO_BINARY_PATTERN" "BYTE_TO_BINARY_PATTERN"\n",
             BYTE_TO_BINARY(frame>>24), BYTE_TO_BINARY(frame>>16), BYTE_TO_BINARY(frame>>8), BYTE_TO_BINARY(frame));
+#endif
 
     pio_sm_put(pio, state_machine, frame);
 
@@ -200,9 +220,15 @@ static uint8_t ps2_keeb_get_data_from_frame(uint32_t frame) {
     uint32_t parity_bit = (frame & 0b01000000000000000000000000000000) ? 1 : 0;
     uint32_t stop_bit   = (frame & 0b10000000001000000000000000000000) ? 1 : 0;
 
-    dprintf("data: 0x%02X\n", data);
+#ifdef DEBUG_LOWLEVEL
+    dprintf("0x%02X\n", data);
+#endif
+
+#ifdef DEBUG_FRAMES
     dprintf("frame_rec: "BYTE_TO_BINARY_PATTERN" "BYTE_TO_BINARY_PATTERN" "BYTE_TO_BINARY_PATTERN" "BYTE_TO_BINARY_PATTERN"\n",
             BYTE_TO_BINARY(frame>>24), BYTE_TO_BINARY(frame>>16), BYTE_TO_BINARY(frame>>8), BYTE_TO_BINARY(frame));
+#endif
+
     if (start_bit != 0) {
         ps2_keeb_error = PS2_ERR_STARTBIT1;
         return 0;
@@ -225,18 +251,21 @@ uint8_t ps2_keeb_host_recv_response(void) {
     uint32_t frame = 0;
     msg_t    msg   = MSG_OK;
 
-    msg = ibqReadTimeout(&pio_rx_queue, (uint8_t*)&frame, sizeof(uint32_t), TIME_MS2I(100));
+    msg = ibqReadTimeout(&pio_rpl_queue, (uint8_t*)&frame, sizeof(uint32_t), TIME_MS2I(100));
     if (msg < MSG_OK) {
         ps2_keeb_error = PS2_ERR_NODATA;
         return 0;
     }
 
+#ifdef DEBUG_LOWLEVEL
+    dprint("ps2_keeb_host_recv_response: ");
+#endif
     return ps2_keeb_get_data_from_frame(frame);
 }
 
 bool pbuf_keeb_has_data(void) {
     osalSysLock();
-    bool has_data = !ibqIsEmptyI(&pio_rx_queue);
+    bool has_data = !ibqIsEmptyI(&pio_msg_queue);
     osalSysUnlock();
     return has_data;
 }
@@ -247,7 +276,7 @@ uint8_t ps2_keeb_host_recv(void) {
 
     uint8_t has_data = pbuf_keeb_has_data();
     if (has_data) {
-        msg = ibqReadTimeout(&pio_rx_queue, (uint8_t*)&frame, sizeof(uint32_t), TIME_MS2I(100));
+        msg = ibqReadTimeout(&pio_msg_queue, (uint8_t*)&frame, sizeof(uint32_t), TIME_MS2I(100));
         if (msg < MSG_OK) {
             ps2_keeb_error = PS2_ERR_NODATA;
             return 0;
@@ -255,6 +284,10 @@ uint8_t ps2_keeb_host_recv(void) {
     } else {
         ps2_keeb_error = PS2_ERR_NODATA;
     }
+
+#ifdef DEBUG_LOWLEVEL
+    if (frame) dprint("ps2_keeb_host_recv: ");
+#endif
 
     return frame != 0 ? ps2_keeb_get_data_from_frame(frame) : 0;
 }

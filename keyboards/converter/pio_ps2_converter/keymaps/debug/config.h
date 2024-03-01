@@ -1,0 +1,2 @@
+#define DEBUG_LOWLEVEL
+#define DEBUG_FRAMES
