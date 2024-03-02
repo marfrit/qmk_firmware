@@ -1,1 +1,4 @@
 #define DEBUG_LOWLEVEL
+#define PERMISSIVE_HOLD
+#undef TAPPING_TERM
+#define TAPPING_TERM 175

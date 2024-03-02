@@ -81,7 +81,7 @@ __attribute__((weak)) void ps2_mouse_moved_user(report_mouse_t *mouse_report) {}
 void ps2_mouse_task(void) {
     static uint8_t buttons_prev = 0;
     extern int     tp_buttons;
-    static u_int16_t errorcount = 0;
+    static u_int32_t errorcount = 0;
 
     if(!ps2_mouse_active) return;
 
@@ -89,6 +89,8 @@ void ps2_mouse_task(void) {
 #ifdef PS2_MOUSE_USE_REMOTE_MODE
     uint8_t rcv;
     rcv = ps2_host_send(PS2_MOUSE_READ_DATA);
+
+    if(!ps2_error) errorcount = 0;
 
     if (rcv == PS2_ACK) {
         mouse_report.buttons = ps2_host_recv_response();
@@ -115,7 +117,8 @@ void ps2_mouse_task(void) {
     if(ps2_error == PS2_ERR_PARITY) {
         errorcount++;
     }
-    if(errorcount > 10000) {
+    if(errorcount > 100000) {
+        dprintln("Jerry got the mouse!");
         ps2_mouse_active = false;
     }
 
