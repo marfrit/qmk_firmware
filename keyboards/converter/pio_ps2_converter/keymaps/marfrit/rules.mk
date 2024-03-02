@@ -1,2 +1,2 @@
 SRC += marfrit.c
-PS2_MOUSE_ENABLE = no
+PS2_MOUSE_ENABLE = yes

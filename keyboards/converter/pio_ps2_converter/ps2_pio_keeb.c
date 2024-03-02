@@ -8,8 +8,8 @@
 #include "ps2_keeb.h"
 #include "debug.h"
 
-#define PS2_KEEB_TIMEOUT_NO_DATA 5
-#define PS2_KEEB_TIMEOUT_SEND 20
+#define PS2_KEEB_TIMEOUT_NO_DATA 20
+#define PS2_KEEB_TIMEOUT_SEND 25
 
 #if !defined(MCU_RP)
 #    error PIO Driver is only available for Raspberry Pi 2040 MCUs!
