@@ -1063,16 +1063,18 @@ void matrix_init(void) {
   debug_keyboard=true;
   debug_mouse=true;
 #endif
-    wait_ms(100);
+    wait_ms(50);
 #ifdef DEBUG_LOWLEVEL
     dprint("TURNING ON POWER\n");
 #endif
     setPinOutput(POWERPIN);
     writePinHigh(POWERPIN);
-    wait_ms(200);
+    wait_ms(50);
     //   writePinLow(POWERPIN);
     setPinOutput(GP17);
     writePinHigh(GP17);
+
+    wait_ms(1800);
 
     ps2_keeb_host_init();
 #ifdef DEBUG_LOWLEVEL

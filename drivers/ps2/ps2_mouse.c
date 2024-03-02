@@ -16,6 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <stdbool.h>
+#include <sys/types.h>
 #include "ps2_mouse.h"
 #include "wait.h"
 #include "gpio.h"
@@ -50,10 +51,10 @@ void ps2_mouse_init(void) {
 
     PS2_MOUSE_RECEIVE("ps2_mouse_init: read BAT");
     PS2_MOUSE_RECEIVE("ps2_mouse_init: read DevID");
-    if(ps2_error == PS2_ERR_PARITY) {
-        dprintln("MOUSE NOT FOUND");
-        ps2_mouse_active = false;
-    }
+//    if(ps2_error == PS2_ERR_PARITY) {
+//        dprintln("MOUSE NOT FOUND");
+//        ps2_mouse_active = false;
+//    }
 
 #ifdef PS2_MOUSE_USE_REMOTE_MODE
     ps2_mouse_set_remote_mode();
@@ -80,12 +81,15 @@ __attribute__((weak)) void ps2_mouse_moved_user(report_mouse_t *mouse_report) {}
 void ps2_mouse_task(void) {
     static uint8_t buttons_prev = 0;
     extern int     tp_buttons;
+    static u_int16_t errorcount = 0;
+
     if(!ps2_mouse_active) return;
 
     /* receives packet from mouse */
 #ifdef PS2_MOUSE_USE_REMOTE_MODE
     uint8_t rcv;
     rcv = ps2_host_send(PS2_MOUSE_READ_DATA);
+
     if (rcv == PS2_ACK) {
         mouse_report.buttons = ps2_host_recv_response();
         mouse_report.x       = ps2_host_recv_response();
@@ -108,6 +112,12 @@ void ps2_mouse_task(void) {
         if (debug_mouse) print("ps2_mouse: fail to get mouse packet\n");
     } */
 #endif
+    if(ps2_error == PS2_ERR_PARITY) {
+        errorcount++;
+    }
+    if(errorcount > 10000) {
+        ps2_mouse_active = false;
+    }
 
     mouse_report.buttons |= tp_buttons;
     /* if mouse moves or buttons state changes */
