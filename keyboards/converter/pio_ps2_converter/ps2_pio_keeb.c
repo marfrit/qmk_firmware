@@ -8,10 +8,14 @@
 #include "ps2_keeb.h"
 #include "debug.h"
 
+#define PS2_KEEB_TIMEOUT_NO_DATA 5
+#define PS2_KEEB_TIMEOUT_SEND 20
+
 #if !defined(MCU_RP)
 #    error PIO Driver is only available for Raspberry Pi 2040 MCUs!
 #endif
 
+#ifdef DEBUG_FRAMES
 #define BYTE_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c"
 #define BYTE_TO_BINARY(byte)  \
   ((byte) & 0x80 ? '1' : '0'), \
@@ -22,6 +26,7 @@
   ((byte) & 0x04 ? '1' : '0'), \
   ((byte) & 0x02 ? '1' : '0'), \
   ((byte) & 0x01 ? '1' : '0')
+#endif
 
 #if PS2_KEEB_DATA_PIN + 1 != PS2_KEEB_CLOCK_PIN
 #    error PS/2 clock pin must be data pin + 1!
@@ -31,7 +36,7 @@ static inline void pio_serve_keeb_interrupt(void);
 
 static const PIO pio = pio1;
 
-OSAL_IRQ_HANDLER(RP_PIO1_IRQ_0_HANDLER) {
+OSAL_IRQ_HANDLER(RP_PIO1_IRQ_1_HANDLER) {
     OSAL_IRQ_PROLOGUE();
     pio_serve_keeb_interrupt();
     OSAL_IRQ_EPILOGUE();
@@ -88,11 +93,11 @@ static __attribute__((aligned(4))) uint8_t pio_rpl_buffer[BQ_BUFFER_SIZE(BUFFER_
 uint8_t ps2_keeb_error = PS2_ERR_NONE;
 
 void pio_serve_keeb_interrupt(void) {
-    uint32_t irqs = pio->ints0;
+    uint32_t irqs = pio->ints1;
     uint32_t frame = 0;
     uint32_t* frame_buffer;
 
-    if (irqs & (PIO_IRQ0_INTF_SM0_RXNEMPTY_BITS << state_machine)) {
+    if (irqs & (PIO_IRQ1_INTF_SM0_RXNEMPTY_BITS << state_machine)) {
         osalSysLockFromISR();
         frame = pio_sm_get(pio, state_machine);
         uint32_t is_msg  = (frame & 0b00000000000100000000000000000000) ? 0 : 1;
@@ -114,8 +119,8 @@ void pio_serve_keeb_interrupt(void) {
         osalSysUnlockFromISR();
     }
 
-    if (irqs & (PIO_IRQ0_INTF_SM0_TXNFULL_BITS << state_machine)) {
-        pio_set_irq0_source_enabled(pio, pis_sm0_tx_fifo_not_full + state_machine, false);
+    if (irqs & (PIO_IRQ1_INTF_SM0_TXNFULL_BITS << state_machine)) {
+        pio_set_irq1_source_enabled(pio, pis_sm0_tx_fifo_not_full + state_machine, false);
         osalSysLockFromISR();
         osalThreadResumeI(&tx_thread, MSG_OK);
         osalSysUnlockFromISR();
@@ -170,10 +175,10 @@ void ps2_keeb_host_init(void) {
     palSetLineMode(PS2_KEEB_DATA_PIN, pin_mode);
     palSetLineMode(PS2_KEEB_CLOCK_PIN, pin_mode);
 
-    pio_set_irq0_source_enabled(pio, pis_sm0_rx_fifo_not_empty + state_machine, true);
+    pio_set_irq1_source_enabled(pio, pis_sm0_rx_fifo_not_empty + state_machine, true);
     pio_sm_init(pio, state_machine, offset, &c);
 
-    nvicEnableVector(RP_PIO1_IRQ_0_NUMBER, CORTEX_MAX_KERNEL_PRIORITY);
+    nvicEnableVector(RP_PIO1_IRQ_1_NUMBER, CORTEX_MAX_KERNEL_PRIORITY);
 
     pio_sm_set_enabled(pio, state_machine, true);
 }
@@ -200,10 +205,14 @@ uint8_t ps2_keeb_host_send(uint8_t data) {
     msg_t msg = MSG_OK;
     osalSysLock();
     while (pio_sm_is_tx_fifo_full(pio, state_machine)) {
-        pio_set_irq0_source_enabled(pio, pis_sm0_tx_fifo_not_full + state_machine, true);
-        msg = osalThreadSuspendTimeoutS(&tx_thread, TIME_MS2I(100));
+        pio_set_irq1_source_enabled(pio, pis_sm0_tx_fifo_not_full + state_machine, true);
+//        if(data != 0xff) {
+            msg = osalThreadSuspendTimeoutS(&tx_thread, TIME_MS2I(PS2_KEEB_TIMEOUT_SEND));
+//        } else {
+//            msg = osalThreadSuspendTimeoutS(&tx_thread, TIME_MS2I(PS2_KEEB_TIMEOUT_RESET));
+//        }
         if (msg < MSG_OK) {
-            pio_set_irq0_source_enabled(pio, pis_sm0_tx_fifo_not_full + state_machine, false);
+            pio_set_irq1_source_enabled(pio, pis_sm0_tx_fifo_not_full + state_machine, false);
             ps2_keeb_error = PS2_ERR_NODATA;
             osalSysUnlock();
             return 0;
@@ -251,7 +260,7 @@ uint8_t ps2_keeb_host_recv_response(void) {
     uint32_t frame = 0;
     msg_t    msg   = MSG_OK;
 
-    msg = ibqReadTimeout(&pio_rpl_queue, (uint8_t*)&frame, sizeof(uint32_t), TIME_MS2I(100));
+    msg = ibqReadTimeout(&pio_rpl_queue, (uint8_t*)&frame, sizeof(uint32_t), TIME_MS2I(PS2_KEEB_TIMEOUT_NO_DATA));
     if (msg < MSG_OK) {
         ps2_keeb_error = PS2_ERR_NODATA;
         return 0;
@@ -276,7 +285,7 @@ uint8_t ps2_keeb_host_recv(void) {
 
     uint8_t has_data = pbuf_keeb_has_data();
     if (has_data) {
-        msg = ibqReadTimeout(&pio_msg_queue, (uint8_t*)&frame, sizeof(uint32_t), TIME_MS2I(100));
+        msg = ibqReadTimeout(&pio_msg_queue, (uint8_t*)&frame, sizeof(uint32_t), TIME_MS2I(PS2_KEEB_TIMEOUT_NO_DATA));
         if (msg < MSG_OK) {
             ps2_keeb_error = PS2_ERR_NODATA;
             return 0;

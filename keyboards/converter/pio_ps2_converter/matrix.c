@@ -776,7 +776,7 @@ uint8_t matrix_scan(void) {
             while (ps2_keeb_host_recv() != 0)
                 ; // read data
             // wait for keyboard to settle after plugin
-            if (timer_elapsed(init_time) > 3000) {
+            if (timer_elapsed(init_time) > 750) {
 #ifdef DEBUG_LOWLEVEL
             dprint("WAIT_SETTLE  -- AT_RESET\n");
 #endif
@@ -789,12 +789,13 @@ uint8_t matrix_scan(void) {
             // https://github.com/tmk/tmk_keyboard/wiki/IBM-PC-AT-Keyboard-Protocol#select-alternate-scan-codesf0
 
             // reset command
-            if (0xFA == ps2_keeb_host_send(0xFF)) {
+            if (0xFA ==  ps2_keeb_host_send(0xFF)) {
 #ifdef DEBUG_LOWLEVEL
                 dprint("AT_RESET --> WAIT_AA\n");
 #endif
                 state = WAIT_AA;
             }
+            wait_ms(250);
             break;
         case WAIT_AA:
             // 1) Read BAT code and ID on keybaord power-up
@@ -1062,13 +1063,13 @@ void matrix_init(void) {
   debug_keyboard=true;
   debug_mouse=true;
 #endif
-    wait_ms(2000);
+    wait_ms(100);
 #ifdef DEBUG_LOWLEVEL
     dprint("TURNING ON POWER\n");
 #endif
     setPinOutput(POWERPIN);
     writePinHigh(POWERPIN);
-    wait_ms(100);
+    wait_ms(200);
     //   writePinLow(POWERPIN);
     setPinOutput(GP17);
     writePinHigh(GP17);

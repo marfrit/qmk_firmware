@@ -1,2 +1,4 @@
 #define DEBUG_LOWLEVEL
 #define DEBUG_FRAMES
+#define PS2_MOUSE_DEBUG_HID
+#define PS2_MOUSE_DEBUG_RAW

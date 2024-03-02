@@ -37,9 +37,11 @@ static inline void ps2_mouse_enable_scrolling(void);
 static inline void ps2_mouse_scroll_button_task(report_mouse_t *mouse_report);
 
 /* ============================= IMPLEMENTATION ============================ */
+bool ps2_mouse_active = true;
 
 /* supports only 3 button mouse at this time */
 void ps2_mouse_init(void) {
+
     ps2_host_init();
 
     wait_ms(PS2_MOUSE_INIT_DELAY); // wait for powering up
@@ -48,6 +50,10 @@ void ps2_mouse_init(void) {
 
     PS2_MOUSE_RECEIVE("ps2_mouse_init: read BAT");
     PS2_MOUSE_RECEIVE("ps2_mouse_init: read DevID");
+    if(ps2_error == PS2_ERR_PARITY) {
+        dprintln("MOUSE NOT FOUND");
+        ps2_mouse_active = false;
+    }
 
 #ifdef PS2_MOUSE_USE_REMOTE_MODE
     ps2_mouse_set_remote_mode();
@@ -74,6 +80,7 @@ __attribute__((weak)) void ps2_mouse_moved_user(report_mouse_t *mouse_report) {}
 void ps2_mouse_task(void) {
     static uint8_t buttons_prev = 0;
     extern int     tp_buttons;
+    if(!ps2_mouse_active) return;
 
     /* receives packet from mouse */
 #ifdef PS2_MOUSE_USE_REMOTE_MODE
