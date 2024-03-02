@@ -58,7 +58,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         __attribute__((unused)) uint8_t rcv = ps2_host_recv_response(); \
         if (debug_mouse) {                                              \
             print((message));                                           \
-            xprintf(" result: %X, error: %X \n", rcv, ps2_error);       \
+            dprintf(" result: %X, error: %X \n", rcv, ps2_error);       \
         }                                                               \
     } while (0)
 

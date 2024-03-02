@@ -253,6 +253,7 @@ static uint8_t ps2_keeb_get_data_from_frame(uint32_t frame) {
         return 0;
     }
 
+    ps2_keeb_error = PS2_ERR_NONE;
     return data;
 }
 
@@ -297,6 +298,6 @@ uint8_t ps2_keeb_host_recv(void) {
 #ifdef DEBUG_LOWLEVEL
     if (frame) dprint("ps2_keeb_host_recv: ");
 #endif
-
+    ps2_keeb_error = PS2_ERR_NONE;
     return frame != 0 ? ps2_keeb_get_data_from_frame(frame) : 0;
 }
