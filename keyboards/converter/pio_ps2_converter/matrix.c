@@ -3,7 +3,7 @@
 #include "config.h"
 #include "print.h"
 #include "matrix.h"
-#include "ps2_keeb.h"
+#include "ps2_pio_keeb.h"
 #include "timer.h"
 #include "action.h"
 #include "host.h"

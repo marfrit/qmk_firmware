@@ -1,5 +1,6 @@
 /*
 Copyright 2010,2011,2012,2013 Jun WAKO <wakojun@gmail.com>
+2024 Markus Fritsche <fritsche.markus@gmail.com>
 
 This software is licensed with a Modified BSD License.
 All of this is supposed to be Free Software, Open Source, DFSG-free,

@@ -1,5 +1,5 @@
 /*
-Copyright 2015 Jun Wako <wakojun@gmail.com>
+Copyright 2024 Markus Fritsche <fritsche.markus@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -17,7 +17,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#define POWERPIN GP16
-#define PS2_KEEB_CLOCK_PIN GP21
-#define PS2_KEEB_DATA_PIN GP20
+#define POWERPIN GP16              /* GPIO pin for turning on PS/2 device power on Purdea Andrei's converter */
+#define PS2_KEEB_CLOCK_PIN GP21    /* GPIO that is wired with the keyboard's clock signal */
+#define PS2_KEEB_DATA_PIN GP20     /* GPIO that is wired with the keyboard's data signal */
+/* Receive mouse reports only after polling. This corresponds well with QMK's ps2_mouse_task.
+   In stream mode, the mouse would send movement data to a queue which would eventually be
+   handled by the host or discarded. */
 #define PS2_MOUSE_USE_REMOTE_MODE

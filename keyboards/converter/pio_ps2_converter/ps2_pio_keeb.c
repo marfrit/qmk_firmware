@@ -1,4 +1,5 @@
 // Copyright 2022 Marek Kraus (@gamelaster)
+// 2024 Markus Fritsche (@marfrit)
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include <stdint.h>
@@ -8,8 +9,8 @@
 #include "ps2_keeb.h"
 #include "debug.h"
 
-#define PS2_KEEB_TIMEOUT_NO_DATA 20
-#define PS2_KEEB_TIMEOUT_SEND 25
+#define PS2_KEEB_TIMEOUT_NO_DATA 20 /* http://www-ug.eecg.utoronto.ca/desl/nios_devices_SoC/datasheets/PS2%20Protocol.htm */
+#define PS2_KEEB_TIMEOUT_SEND 25    /* grant a little more time for replies for good measure */
 
 #if !defined(MCU_RP)
 #    error PIO Driver is only available for Raspberry Pi 2040 MCUs!
@@ -34,7 +35,7 @@
 
 static inline void pio_serve_keeb_interrupt(void);
 
-static const PIO pio = pio1;
+static const PIO pio = pio1; /* Use PIO1 since PIO0 is busy with the PS/2 mouse */
 
 OSAL_IRQ_HANDLER(RP_PIO1_IRQ_1_HANDLER) {
     OSAL_IRQ_PROLOGUE();
@@ -69,8 +70,8 @@ static const uint16_t ps2_program_instructions[] = {
     0xe083, // 18: set    pindirs, 3
     0x2021, // 19: wait   0 pin, 1
     0x20a1, // 20: wait   1 pin, 1
-    0xe041, // 21: set    y, 1
-    0xa0d2, // 22: mov    isr, ::y
+    0xe041, // 21: set    y, 1          // Additional to the PS/2 code by gamelaster, tag direct replies (e.g. ACK, 0xFA)
+    0xa0d2, // 22: mov    isr, ::y      // reverse y and put into the ISR in order to tag the msg received
             //     .wrap
 };
 // clang-format on
@@ -84,6 +85,9 @@ static const struct pio_program ps2_program = {
 static int                state_machine = -1;
 static thread_reference_t tx_thread     = NULL;
 
+/* Setup of two queues, one for messages from the keyboard to the host, one
+   for replies directly following a send since the matrix code relies on checking
+   the direct ACK of some messages to the keyboard */
 #define BUFFER_SIZE 32
 static input_buffers_queue_t               pio_msg_queue;
 static __attribute__((aligned(4))) uint8_t pio_msg_buffer[BQ_BUFFER_SIZE(BUFFER_SIZE, sizeof(uint32_t))];
@@ -100,6 +104,7 @@ void pio_serve_keeb_interrupt(void) {
     if (irqs & (PIO_IRQ1_INTF_SM0_RXNEMPTY_BITS << state_machine)) {
         osalSysLockFromISR();
         frame = pio_sm_get(pio, state_machine);
+        /* Check if the frame includes the 'reply' tagging */
         uint32_t is_msg  = (frame & 0b00000000000100000000000000000000) ? 0 : 1;
         if (is_msg) {
             frame_buffer = (uint32_t*)ibqGetEmptyBufferI(&pio_msg_queue);
@@ -128,7 +133,6 @@ void pio_serve_keeb_interrupt(void) {
 }
 
 void ps2_keeb_host_init(void) {
-
     ibqObjectInit(&pio_msg_queue, false, pio_msg_buffer, sizeof(uint32_t), BUFFER_SIZE, NULL, NULL);
     ibqObjectInit(&pio_rpl_queue, false, pio_rpl_buffer, sizeof(uint32_t), BUFFER_SIZE, NULL, NULL);
 
@@ -161,6 +165,8 @@ void ps2_keeb_host_init(void) {
     // clang-format off
     iomode_t pin_mode = PAL_RP_PAD_IE |
                         PAL_RP_GPIO_OE |
+                        // PAL_RP_PAD_DRIVE2 because being
+                        // gentle to the level shifter.
                         PAL_RP_PAD_DRIVE2 |
                         // Invert output enable so that pindirs=1 means input
                         // and indirs=0 means output. This way, out pindirs
@@ -204,13 +210,10 @@ uint8_t ps2_keeb_host_send(uint8_t data) {
 
     msg_t msg = MSG_OK;
     osalSysLock();
+    /* try to send data to the device */
     while (pio_sm_is_tx_fifo_full(pio, state_machine)) {
         pio_set_irq1_source_enabled(pio, pis_sm0_tx_fifo_not_full + state_machine, true);
-//        if(data != 0xff) {
-            msg = osalThreadSuspendTimeoutS(&tx_thread, TIME_MS2I(PS2_KEEB_TIMEOUT_SEND));
-//        } else {
-//            msg = osalThreadSuspendTimeoutS(&tx_thread, TIME_MS2I(PS2_KEEB_TIMEOUT_RESET));
-//        }
+        msg = osalThreadSuspendTimeoutS(&tx_thread, TIME_MS2I(PS2_KEEB_TIMEOUT_SEND));
         if (msg < MSG_OK) {
             pio_set_irq1_source_enabled(pio, pis_sm0_tx_fifo_not_full + state_machine, false);
             ps2_keeb_error = PS2_ERR_NODATA;
@@ -220,6 +223,7 @@ uint8_t ps2_keeb_host_send(uint8_t data) {
     }
     osalSysUnlock();
 
+    /* return response, if received */
     return ps2_keeb_host_recv_response();
 }
 
@@ -261,6 +265,7 @@ uint8_t ps2_keeb_host_recv_response(void) {
     uint32_t frame = 0;
     msg_t    msg   = MSG_OK;
 
+    /* get data from the reply queue if availabe */
     msg = ibqReadTimeout(&pio_rpl_queue, (uint8_t*)&frame, sizeof(uint32_t), TIME_MS2I(PS2_KEEB_TIMEOUT_NO_DATA));
     if (msg < MSG_OK) {
         ps2_keeb_error = PS2_ERR_NODATA;
@@ -274,6 +279,8 @@ uint8_t ps2_keeb_host_recv_response(void) {
 }
 
 bool pbuf_keeb_has_data(void) {
+    /* check if data has been received from the device via the ISR and been queued into the
+       messages queue */
     osalSysLock();
     bool has_data = !ibqIsEmptyI(&pio_msg_queue);
     osalSysUnlock();
@@ -281,6 +288,7 @@ bool pbuf_keeb_has_data(void) {
 }
 
 uint8_t ps2_keeb_host_recv(void) {
+    /* try to acquire the direct reply to data send out by the state machine */
     uint32_t frame = 0;
     msg_t    msg   = MSG_OK;
 
