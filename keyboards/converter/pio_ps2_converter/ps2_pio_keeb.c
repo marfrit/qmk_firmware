@@ -6,7 +6,7 @@
 #include "gpio.h"
 #include "hardware/pio.h"
 #include "hardware/clocks.h"
-#include "ps2_keeb.h"
+#include "ps2_pio_keeb.h"
 #include "debug.h"
 
 #define PS2_KEEB_TIMEOUT_NO_DATA 20 /* http://www-ug.eecg.utoronto.ca/desl/nios_devices_SoC/datasheets/PS2%20Protocol.htm */
