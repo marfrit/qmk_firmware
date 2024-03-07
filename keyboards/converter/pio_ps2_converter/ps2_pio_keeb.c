@@ -17,7 +17,7 @@
 #endif
 
 #ifdef DEBUG_FRAMES
-#define BYTE_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c"
+#define BYTE_TO_BINARY_PATTERN "%c%c%c%c %c%c%c%c"
 #define BYTE_TO_BINARY(byte)  \
   ((byte) & 0x80 ? '1' : '0'), \
   ((byte) & 0x40 ? '1' : '0'), \
@@ -187,6 +187,9 @@ void ps2_keeb_host_init(void) {
     nvicEnableVector(RP_PIO1_IRQ_1_NUMBER, CORTEX_MAX_KERNEL_PRIORITY);
 
     pio_sm_set_enabled(pio, state_machine, true);
+#ifdef DEBUG_LOWLEVEL
+    dprint("PIO state machine started.\n");
+#endif
 }
 
 static int bit_parity(int x) {
