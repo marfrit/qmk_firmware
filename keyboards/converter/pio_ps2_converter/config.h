@@ -23,4 +23,3 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /* Receive mouse reports only after polling. This corresponds well with QMK's ps2_mouse_task.
    In stream mode, the mouse would send movement data to a queue which would eventually be
    handled by the host or discarded. */
-#define PS2_MOUSE_USE_REMOTE_MODE

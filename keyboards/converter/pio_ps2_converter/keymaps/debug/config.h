@@ -5,3 +5,5 @@
 
 #define PS2_MOUSE_X_MULTIPLIER 3 // speed up track point movements
 #define PS2_MOUSE_Y_MULTIPLIER 3 // speed up track point movements
+
+#define PS2_MOUSE_USE_REMOTE_MODE
