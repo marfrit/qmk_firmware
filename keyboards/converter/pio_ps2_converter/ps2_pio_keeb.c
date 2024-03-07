@@ -259,6 +259,10 @@ static uint8_t ps2_keeb_get_data_from_frame(uint32_t frame) {
         ps2_keeb_error = PS2_ERR_STARTBIT2;
         return 0;
     }
+    if (!data) {
+        ps2_keeb_error = PS2_ERR_OVERFLOW;
+        return 0;
+    }
 
     ps2_keeb_error = PS2_ERR_NONE;
     return data;
