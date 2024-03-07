@@ -224,6 +224,11 @@ static uint8_t ps2_get_data_from_frame(uint32_t frame) {
         return 0;
     }
 
+    if (!data) {
+        ps2_error = PS2_ERR_NODATA;
+        return 0;
+    }
+
     return data;
 }
 
@@ -246,6 +251,9 @@ bool pbuf_has_data(void) {
     osalSysLock();
     bool has_data = !ibqIsEmptyI(&pio_rx_queue);
     osalSysUnlock();
+    if(has_data) {
+        dprintln("I haz data!");
+    }
     return has_data;
 }
 
