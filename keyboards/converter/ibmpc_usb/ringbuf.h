@@ -1,4 +1,5 @@
-#pragma once
+#ifndef RINGBUF_H
+#define RINGBUF_H
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -76,3 +77,4 @@ static inline void ringbuf_push(ringbuf_t *buf, uint8_t data)
     buf->head++;
     buf->head &= buf->size_mask;
 }
+#endif

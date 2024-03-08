@@ -1,8 +1,8 @@
 # MCU name
-#MCU = atmega32u4
+MCU = atmega32u2
 
 # Bootloader selection
-#BOOTLOADER = caterina
+BOOTLOADER = atmel-dfu
 
 # Build Options
 #   change yes to no to disable
@@ -23,5 +23,5 @@ AUDIO_ENABLE = no           # Audio output
 CUSTOM_MATRIX = yes
 
 SRC += matrix.c ibmpc.c
-DEFAULT_FOLDER = converter/ibmpc_usb/promicro
+
 # EEPROM_DRIVER = i2c

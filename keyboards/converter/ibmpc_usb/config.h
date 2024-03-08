@@ -19,43 +19,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 #define VENDOR_ID       0xFEED
-#define PRODUCT_ID      0x6535
+#define PRODUCT_ID      0x6536
 #define DEVICE_VER      0x0101
 #define MANUFACTURER    QMK
-#define PRODUCT         IBM Terminal Keyboard
+#define PRODUCT         IBM keyboard protocol converter
 
 /* matrix size */
-#define MATRIX_ROWS 8  // keycode bit: 3-0
-#define MATRIX_COLS 16   // keycode bit: 6-4
-
-/* legacy keymap support */
-#define USE_LEGACY_KEYMAP
+#define MATRIX_ROWS 8
+#define MATRIX_COLS 16
 
 /* key combination for command */
 #define IS_COMMAND() ( \
     get_mods() == (MOD_BIT(KC_LSHIFT) | MOD_BIT(KC_RSHIFT) | MOD_BIT(KC_RALT) | MOD_BIT(KC_RCTL)) \
 )
-
-/*
- * PS/2 Interrupt configuration
- */
-#ifdef PS2_USE_INT
-/* uses INT1 for clock line(ATMega32U4) */
-#define PS2_CLOCK_PIN   D1
-#define PS2_DATA_PIN    D0
-
-#define XT_RST_PIN1     B1
-#define XT_RST_PIN2     B3
-
-#define PS2_INT_INIT()  do {    \
-    EICRA |= ((1<<ISC31) |      \
-              (0<<ISC30));      \
-} while (0)
-#define PS2_INT_ON()  do {      \
-    EIMSK |= (1<<INT1);         \
-} while (0)
-#define PS2_INT_OFF() do {      \
-    EIMSK &= ~(1<<INT1);        \
-} while (0)
-#define PS2_INT_VECT    INT1_vect
-#endif
