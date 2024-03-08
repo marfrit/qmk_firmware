@@ -155,11 +155,12 @@ static inline void data_hi(void)
     IBMPC_DATA_PORT |=  (1<<IBMPC_DATA_BIT);
 }
 
-static inline bool data_in(void)
-{
+
+__attribute__((__always_inline__)) // needed for ISR optimization
+static inline bool data_in(void) {
     IBMPC_DATA_DDR  &= ~(1<<IBMPC_DATA_BIT);
     IBMPC_DATA_PORT |=  (1<<IBMPC_DATA_BIT);
-    wait_us(1);
+//    wait_us(1);
     return IBMPC_DATA_PIN&(1<<IBMPC_DATA_BIT);
 }
 #endif

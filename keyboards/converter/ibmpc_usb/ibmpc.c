@@ -222,7 +222,7 @@ void ibmpc_host_isr_clear(void)
 // Confirmed that ATmega32u4 can read data line in 2.5us from interrupt after
 // ISR prologue pushs r18, r19, r20, r21, r24, r25 r30 and r31 with GCC 5.4.0
 void ibmpc_interrupt_service_routine(void) {
-// ISR(IBMPC_INT_VECT)
+//ISR(IBMPC_INT_VECT)
 //{
     uint8_t dbit;
     dbit = data_in();
@@ -242,9 +242,9 @@ void ibmpc_interrupt_service_routine(void) {
     } else {
         // This gives 2.0ms at least before timeout
 #if defined(__AVR__)
-        if ((uint8_t)(t - timer_start) >= 3) {
+        if ((uint8_t)(t - timer_start) >= 5) {
 #else
-        if ((uint8_t)(timer_elapsed(timer_start)) >= 3) {
+        if ((uint8_t)(timer_elapsed(timer_start)) >= 5) {
 #endif
             ibmpc_isr_debug = isr_state;
             ibmpc_error = IBMPC_ERR_TIMEOUT;
