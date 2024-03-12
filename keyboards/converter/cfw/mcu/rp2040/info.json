@@ -1,0 +1,9 @@
+{
+    "keyboard_name": "converter/cfw",
+    "processor": "RP2040",
+    "bootloader": "rp2040",
+    "matrix_pins": {
+        "cols": ["GP1", "GP1", "GP1", "GP1"],
+        "rows": ["GP2", "GP2", "GP2", "GP2"]
+    }
+}
