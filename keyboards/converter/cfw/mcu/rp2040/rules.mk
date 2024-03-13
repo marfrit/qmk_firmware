@@ -1,0 +1,1 @@
+PICO_DUAL_CORE = yes

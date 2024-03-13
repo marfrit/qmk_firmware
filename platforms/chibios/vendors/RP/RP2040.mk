@@ -11,12 +11,18 @@ endif
 # Raspberry Pi Pico SDK Support
 ##############################################################################
 ADEFS  += -DCRT0_VTOR_INIT=1 \
-		  -DCRT0_EXTRA_CORES_NUMBER=0 \
           -DCRT0_INIT_VECTORS=1
 
 CFLAGS += -DPICO_NO_FPGA_CHECK \
           -DNDEBUG
 
+ifeq ($(strip $(PICO_DUAL_CORE)), yes)
+	ADEFS += -DCRT0_EXTRA_CORES_NUMBER=1
+	CFLAGS += -DCRT0_EXTRA_CORES_NUMBER=1
+else
+	ADEFS += -DCRT0_EXTRA_CORES_NUMBER=0
+	CFLAGS += -DCRT0_EXTRA_CORES_NUMBER=0
+endif
 #
 # Pico SDK source and header files needed by QMK and ChibiOS
 ##############################################################################

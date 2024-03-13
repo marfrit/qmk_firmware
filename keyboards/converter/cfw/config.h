@@ -3,12 +3,6 @@
 
 #pragma once
 
-#define CH_CFG_SMP_MODE TRUE
-/*
- * Feature disable options
- *  These options are also useful to firmware size reduction.
- */
-
 /* disable debug print */
 //#define NO_DEBUG
 

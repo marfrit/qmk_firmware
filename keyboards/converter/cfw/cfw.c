@@ -1,16 +1,12 @@
-/**
- * Copyright (c) 2020 Raspberry Pi (Trading) Ltd.
- *
- * SPDX-License-Identifier: BSD-3-Clause
- */
+// Copyright 2022 QMK
+// SPDX-License-Identifier: GPL-2.0-or-later
 
-#include "debug.h"
-#include "ch.h"
-// #include "pico/multicore.h"
+#include "quantum.h"
 
-void keyboard_post_init_user(void) {
-    while (true) {
-        chThdSleepMilliseconds(2000);
-        dprintf("Main (C0) running on core %d", port_get_core_id());
-    }
+void keyboard_post_init_kb(void) {
+    debug_enable   = true;
+    debug_matrix   = true;
+    debug_keyboard = true;
+    debug_mouse    = true;
+    keyboard_post_init_user();
 }
