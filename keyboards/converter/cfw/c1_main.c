@@ -11,6 +11,8 @@ __attribute__((weak)) void c1_main(void) {
     chInstanceObjectInit(&ch1, &ch_core1_cfg);
     chSysUnlock();
 
+// sniff protocol
+
     dprintf("Time since start: %d\n", timer_elapsed(startup_timer));
 
     while (true) {
