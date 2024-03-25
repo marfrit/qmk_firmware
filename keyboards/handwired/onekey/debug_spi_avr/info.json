@@ -1,0 +1,12 @@
+{
+    "keyboard_name": "Onekey Pro Micro",
+    "development_board": "promicro",
+    "bootloader": "qmk-dfu",
+/*     "eeprom": {
+        "driver": "spi"
+    },
+ */    "matrix_pins": {
+        "cols": ["B4"],
+        "rows": ["B5"]
+    }
+}
