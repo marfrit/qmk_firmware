@@ -1,6 +1,12 @@
 #pragma once
 #include QMK_KEYBOARD_H
 
+#if defined __has_include
+#  if __has_include ("additionals.h")
+#    include "additionals.h"
+#  endif
+#endif
+
 #define MUTE_HOLD_DELAY 400
 
 enum layers {
@@ -20,6 +26,10 @@ enum custom_keycodes {
 #else
     MUTE_TEAMS = SAFE_RANGE,
     MUTE_SKYPE,
+#ifdef MFADDS
+    USRKC1,
+    USRKC2,
+#endif
     NEW_SAFE_RANGE,
 #endif
 };

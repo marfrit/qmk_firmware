@@ -18,12 +18,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include QMK_KEYBOARD_H
 #include "marfrit.h"
 
+#ifndef MFADDS
+#define USRKC1 KC_F1
+#define USRKC2 KC_F2
+#endif
+
 #define LAYOUT_wrapper(...) LAYOUT(__VA_ARGS__)
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [_HIEAO] = LAYOUT_wrapper(
                     KC_F13, KC_F14, KC_F15, KC_F16, KC_F17, KC_F18, KC_F19, KC_F20, KC_F21, KC_F22, KC_F23, KC_F24,
-    KC_ESC,         KC_F1,  KC_F2,  KC_F3,  KC_F4,  KC_F5,  KC_F6,  KC_F7,  KC_F8,  KC_F9,  KC_F10, KC_F11, KC_F12,              QK_BOOT,DB_TOGG,KC_PAUS,            KC_VOLD,KC_VOLU,KC_MUTE,
+    KC_ESC,         KC_F1,  KC_F2,  KC_F3,  KC_F4,  KC_F5,  KC_F6,  KC_F7,  KC_F8,  EE_CLR,  KC_F10, KC_F11, KC_F12,              QK_BOOT,DB_TOGG,KC_PAUS,            KC_VOLD,KC_VOLU,KC_MUTE,
     KC_GRV,         ___NUMBER_L1____, ___NUMBER_R1____,KC_MINS,KC_EQL, KC_JYEN,KC_BSPC,     KC_INS, KC_HOME,KC_PGUP,    KC_NLCK,KC_PSLS,KC_PAST,KC_PMNS,
     KC_TAB,         ____HIEAO_L1____, ____HIEAO_R1____,    KC_LBRC,KC_RBRC,        KC_BSLS,     KC_DEL, KC_END, KC_PGDN,    KC_P7,  KC_P8,  KC_P9,  KC_PPLS,
     KC_CAPS,        ____HIEAO_L2____, ____HIEAO_R2____,         KC_QUOT,        KC_NUHS,KC_ENT,                                  KC_P4,  KC_P5,  KC_P6,  KC_PCMM,
@@ -50,7 +55,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     ),
     [_DIACRITICS] = LAYOUT_wrapper(
                     KC_F13, KC_F14, KC_F15, KC_F16, KC_F17, KC_F18, KC_F19, KC_F20, KC_F21, KC_F22, KC_F23, KC_F24,
-    KC_ESC,         KC_F1,  KC_F2,  KC_F3,  KC_F4,  KC_F5,  KC_F6,  KC_F7,  KC_F8,  KC_F9,  KC_F10, KC_F11, KC_F12,              QK_BOOT,KC_SLCK,KC_PAUS,            KC_VOLD,KC_VOLU,KC_MUTE,
+    KC_ESC,         USRKC1, USRKC2, KC_F3,  KC_F4,  KC_F5,  KC_F6,  KC_F7,  KC_F8,  KC_F9,  KC_F10, KC_F11, KC_F12,              QK_BOOT,KC_SLCK,KC_PAUS,            KC_VOLD,KC_VOLU,KC_MUTE,
     KC_GRV,         ___NUMBER_L1____, ___NUMBER_R1____,KC_MINS,KC_EQL, KC_JYEN,KC_BSPC,     KC_INS, KC_HOME,KC_PGUP,    KC_NLCK,KC_PSLS,KC_PAST,KC_PMNS,
     KC_TAB,         _DIACRITICS_L1__, _DIACRITICS_R1__,    KC_LBRC,KC_RBRC,        KC_BSLS,     KC_DEL, KC_END, KC_PGDN,    KC_P7,  KC_P8,  KC_P9,  KC_PPLS,
     KC_CAPS,        _DIACRITICS_L2__, _DIACRITICS_R2__,         KC_QUOT,        KC_NUHS,KC_ENT,                                  KC_P4,  KC_P5,  KC_P6,  KC_PCMM,

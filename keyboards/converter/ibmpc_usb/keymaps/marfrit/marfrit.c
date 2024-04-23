@@ -70,6 +70,19 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
     break;
 
+#ifdef MFADDS
+  case USRKC1:
+    if (record->event.pressed) {
+        USR1;
+    }
+    break;
+  case USRKC2:
+    if (record->event.pressed) {
+        USR2;
+    }
+    break;
+#endif
+
   default:
     break;
   }
