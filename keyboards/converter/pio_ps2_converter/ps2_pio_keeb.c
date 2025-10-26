@@ -1,24 +1,18 @@
 // Copyright 2022 Marek Kraus (@gamelaster)
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <stdint.h>
+#include <stdio.h>
 #include "gpio.h"
 #include "hardware/pio.h"
 #include "hardware/clocks.h"
 #include "ps2_keeb.h"
 #include "debug.h"
 
+#include "ringbuf.h"
+
 #if !defined(MCU_RP)
 #    error PIO Driver is only available for Raspberry Pi 2040 MCUs!
-#endif
-
-#if defined(PS2_ENABLE)
-#    if defined(PS2_MOUSE_ENABLE)
-#        if !defined(PS2_KEEB_USE_REMOTE_MODE)
-#            define BUFFERED_MODE_KEEB_ENABLE
-#        endif
-#    else // PS2 Keyboard
-#        define BUFFERED_MODE_KEEB_ENABLE
-#    endif
 #endif
 
 #if PS2_KEEB_DATA_PIN + 1 != PS2_KEEB_CLOCK_PIN
@@ -29,46 +23,58 @@ static inline void pio_serve_keeb_interrupt(void);
 
 static const PIO pio = pio1;
 
-OSAL_IRQ_HANDLER(RP_PIO1_IRQ_0_HANDLER) {
+/* buffer for data received from device */
+#define RINGBUF_SIZE    16
+static uint8_t   replies[RINGBUF_SIZE];
+static ringbuf_t repliesb = {};
+static uint8_t   messages[RINGBUF_SIZE];
+static ringbuf_t messagesb = {};
+static uint32_t  lastmsg = 0;
+
+OSAL_IRQ_HANDLER(RP_PIO1_IRQ_1_HANDLER) {
     OSAL_IRQ_PROLOGUE();
     pio_serve_keeb_interrupt();
     OSAL_IRQ_EPILOGUE();
 }
 
 #define PS2_WRAP_TARGET 0
-#define PS2_WRAP 20
+#define PS2_WRAP 24
 
 // clang-format off
 static const uint16_t ps2_program_instructions[] = {
             //     .wrap_target
-    0x00c7, //  0: jmp    pin, 7
+    0x00c8, //  0: jmp    pin, 8
     0xe02a, //  1: set    x, 10
     0x2021, //  2: wait   0 pin, 1
     0x4001, //  3: in     pins, 1
     0x20a1, //  4: wait   1 pin, 1
     0x0042, //  5: jmp    x--, 2
-    0x0000, //  6: jmp    0
-    0x00e9, //  7: jmp    !osre, 9
-    0x0000, //  8: jmp    0
-    0xff81, //  9: set    pindirs, 1             [31]
-    0xe280, // 10: set    pindirs, 0             [2]
-    0xe082, // 11: set    pindirs, 2
-    0x2021, // 12: wait   0 pin, 1
-    0xe029, // 13: set    x, 9
-    0x6081, // 14: out    pindirs, 1
-    0x20a1, // 15: wait   1 pin, 1
-    0x2021, // 16: wait   0 pin, 1
-    0x004e, // 17: jmp    x--, 14
-    0xe083, // 18: set    pindirs, 3
+    0x8000, //  6: push   noblock
+    0x0000, //  7: jmp    0
+    0x00ea, //  8: jmp    !osre, 10
+    0x0000, //  9: jmp    0
+    0xe041, // 10: set    y, 1
+    0xa0c2, // 11: mov    isr, y
+    0xff81, // 12: set    pindirs, 1             [31]
+    0xe280, // 13: set    pindirs, 0             [2]
+    0xe082, // 14: set    pindirs, 2
+    0x2021, // 15: wait   0 pin, 1
+    0xe029, // 16: set    x, 9
+    0x6081, // 17: out    pindirs, 1
+    0x20a1, // 18: wait   1 pin, 1
     0x2021, // 19: wait   0 pin, 1
-    0x20a1, // 20: wait   1 pin, 1
+    0x0051, // 20: jmp    x--, 17
+    0xe083, // 21: set    pindirs, 3
+    0x2021, // 22: wait   0 pin, 1
+    0x20a1, // 23: wait   1 pin, 1
+    0x0001, // 24: jmp    1
             //     .wrap
 };
 // clang-format on
 
 static const struct pio_program ps2_program = {
     .instructions = ps2_program_instructions,
-    .length       = 21,
+    .length       = 25,
     .origin       = -1,
 };
 
@@ -82,9 +88,9 @@ static __attribute__((aligned(4))) uint8_t pio_rx_buffer[BQ_BUFFER_SIZE(BUFFER_S
 uint8_t ps2_keeb_error = PS2_ERR_NONE;
 
 void pio_serve_keeb_interrupt(void) {
-    uint32_t irqs = pio->ints0;
+    uint32_t irqs = pio->ints1;
 
-    if (irqs & (PIO_IRQ0_INTF_SM0_RXNEMPTY_BITS << state_machine)) {
+    if (irqs & (PIO_IRQ1_INTF_SM0_RXNEMPTY_BITS << state_machine)) {
         osalSysLockFromISR();
         uint32_t* frame_buffer = (uint32_t*)ibqGetEmptyBufferI(&pio_rx_queue);
         if (frame_buffer == NULL) {
@@ -96,15 +102,21 @@ void pio_serve_keeb_interrupt(void) {
         osalSysUnlockFromISR();
     }
 
-    if (irqs & (PIO_IRQ0_INTF_SM0_TXNFULL_BITS << state_machine)) {
-        pio_set_irq0_source_enabled(pio, pis_sm0_tx_fifo_not_full + state_machine, false);
+    if (irqs & (PIO_IRQ1_INTF_SM0_TXNFULL_BITS << state_machine)) {
+        pio_set_irq1_source_enabled(pio, pis_sm0_tx_fifo_not_full + state_machine, false);
         osalSysLockFromISR();
         osalThreadResumeI(&tx_thread, MSG_OK);
         osalSysUnlockFromISR();
     }
+
+    ps2_keeb_post_data();
 }
 
 void ps2_keeb_host_init(void) {
+    dprint("ps2_keeb_host_init\n");
+    ringbuf_init(&messagesb, messages, RINGBUF_SIZE);
+    ringbuf_init(&repliesb, replies, RINGBUF_SIZE);
+
     ibqObjectInit(&pio_rx_queue, false, pio_rx_buffer, sizeof(uint32_t), BUFFER_SIZE, NULL, NULL);
     uint pio_idx = pio_get_index(pio);
 
@@ -135,7 +147,7 @@ void ps2_keeb_host_init(void) {
     // clang-format off
     iomode_t pin_mode = PAL_RP_PAD_IE |
                         PAL_RP_GPIO_OE |
-                        PAL_RP_PAD_DRIVE2 |
+                        PAL_RP_PAD_DRIVE4 |
                         // Invert output enable so that pindirs=1 means input
                         // and indirs=0 means output. This way, out pindirs
                         // works correctly with the open-drain PS/2 interface.
@@ -149,10 +161,10 @@ void ps2_keeb_host_init(void) {
     palSetLineMode(PS2_KEEB_DATA_PIN, pin_mode);
     palSetLineMode(PS2_KEEB_CLOCK_PIN, pin_mode);
 
-    pio_set_irq0_source_enabled(pio, pis_sm0_rx_fifo_not_empty + state_machine, true);
+    pio_set_irq1_source_enabled(pio, pis_sm0_rx_fifo_not_empty + state_machine, true);
     pio_sm_init(pio, state_machine, offset, &c);
 
-    nvicEnableVector(RP_PIO1_IRQ_0_NUMBER, CORTEX_MAX_KERNEL_PRIORITY);
+    nvicEnableVector(RP_PIO1_IRQ_1_NUMBER, CORTEX_MAX_KERNEL_PRIORITY);
 
     pio_sm_set_enabled(pio, state_machine, true);
 }
@@ -162,22 +174,27 @@ static int bit_parity(int x) {
 }
 
 uint8_t ps2_keeb_host_send(uint8_t data) {
+    uint8_t ret = 0;
+    dprint("ps2_keeb_host_send\n");
+
     uint32_t frame = 0b1000000000;
     frame          = frame | data;
+
+    dprintf("sending: 0x%02X ", data);
 
     if (bit_parity(data)) {
         frame = frame | (1 << 8);
     }
 
-    pio_sm_put(pio, state_machine, frame);
+    pio_sm_put(pio, state_machine, frame);  // writes a word to the sm fifo
 
     msg_t msg = MSG_OK;
-    osalSysLock();
-    while (pio_sm_is_tx_fifo_full(pio, state_machine)) {
-        pio_set_irq0_source_enabled(pio, pis_sm0_tx_fifo_not_full + state_machine, true);
+    osalSysLock();  // LOCK ON
+    while (pio_sm_is_tx_fifo_full(pio, state_machine)) {  // if fifo is full...
+        pio_set_irq1_source_enabled(pio, pis_sm0_tx_fifo_not_full + state_machine, true);
         msg = osalThreadSuspendTimeoutS(&tx_thread, TIME_MS2I(100));
         if (msg < MSG_OK) {
-            pio_set_irq0_source_enabled(pio, pis_sm0_tx_fifo_not_full + state_machine, false);
+            pio_set_irq1_source_enabled(pio, pis_sm0_tx_fifo_not_full + state_machine, false);
             ps2_keeb_error = PS2_ERR_NODATA;
             osalSysUnlock();
             return 0;
@@ -185,34 +202,97 @@ uint8_t ps2_keeb_host_send(uint8_t data) {
     }
     osalSysUnlock();
 
-    return ps2_keeb_host_recv_response();
+    dprint("sent\n");
+
+    while (!ret) {
+        ret = ps2_keeb_host_recv_response();
+        if (ret) {
+            return ret;
+        }
+        wait_ms(1);
+    }
+
+    return 0;
 }
 
-static uint8_t ps2_keeb_get_data_from_frame(uint32_t frame) {
+void ps2_keeb_sort_data_from_frame(uint32_t frame) {
+    dprint("ps2_keeb_sort_data_from_frame\n");
     uint8_t  data       = (frame >> 22) & 0xFF;
     uint32_t start_bit  = (frame & 0b00000000001000000000000000000000) ? 1 : 0;
     uint32_t parity_bit = (frame & 0b01000000000000000000000000000000) ? 1 : 0;
     uint32_t stop_bit   = (frame & 0b10000000001000000000000000000000) ? 1 : 0;
+    uint32_t repl_bit   = (frame & 0b00000000000100000000000000000000) ? 1 : 0;
+
+//    dprintf("frame: 0x%" PRIX32 "\n", frame);
+//    dprintf("data: 0x%02X\n", data);
+    lastmsg = frame;
 
     if (start_bit != 0) {
         ps2_keeb_error = PS2_ERR_STARTBIT1;
-        return 0;
+//        dprint("startbit error\n");
+        return;
     }
 
     if (parity_bit != bit_parity(data)) {
         ps2_keeb_error = PS2_ERR_PARITY;
-        return 0;
+//        dprint("parity error\n");
+        return;
     }
 
     if (stop_bit != 1) {
         ps2_keeb_error = PS2_ERR_STARTBIT2;
-        return 0;
+//        dprint("stopbit error\n");
+        return;
     }
 
-    return data;
+    if (repl_bit == 0) {
+ //       dprint("message\n");
+        ringbuf_push(&messagesb, data);
+    } else {
+ //       dprint("reply\n");
+        ringbuf_push(&repliesb, data);
+    }
+    return;
 }
 
 uint8_t ps2_keeb_host_recv_response(void) {
+    dprintf("lastmsg_res: 0x%" PRIX32 "\n", lastmsg);
+    dprint("ps2_keeb_host_recv_response\n");
+    if(!ringbuf_is_empty(&repliesb)) {
+        return ringbuf_get(&repliesb);
+    } else {
+        return 0;
+    }
+}
+
+uint8_t ps2_keeb_host_recv(void) {
+    dprintf("lastmsg: 0x%" PRIX32 "\n", lastmsg);
+    dprint("ps2_keeb_host_recv\n");
+    if(!ringbuf_is_empty(&messagesb)) {
+        return ringbuf_get(&messagesb);
+    } else {
+        return 0;
+    }
+}
+
+void ps2_keeb_post_data(void) {
+//    dprint("ps2_keeb_post_data\n");
+    uint32_t frame = 0;
+    msg_t    msg   = MSG_OK;
+
+    msg = ibqReadTimeout(&pio_rx_queue, (uint8_t*)&frame, sizeof(uint32_t), TIME_MS2I(100));
+    if (msg < MSG_OK) {
+        ps2_keeb_error = PS2_ERR_NODATA;
+        return;
+    }
+
+//    dprintf("frame: 0x%" PRIX32 "\n", frame);
+
+    ps2_keeb_sort_data_from_frame(frame);
+
+    return;
+}
+/* uint8_t ps2_keeb_host_recv_response(void) {
     uint32_t frame = 0;
     msg_t    msg   = MSG_OK;
 
@@ -222,11 +302,11 @@ uint8_t ps2_keeb_host_recv_response(void) {
         return 0;
     }
 
+    dprintf("received response: 0x%02X\n", ps2_keeb_get_data_from_frame(frame));
+
     return ps2_keeb_get_data_from_frame(frame);
 }
-
-#ifdef BUFFERED_MODE_KEEB_ENABLE
-
+ */
 bool pbuf_keeb_has_data(void) {
     osalSysLock();
     bool has_data = !ibqIsEmptyI(&pio_rx_queue);
@@ -234,9 +314,10 @@ bool pbuf_keeb_has_data(void) {
     return has_data;
 }
 
-uint8_t ps2_keeb_host_recv(void) {
+/* uint8_t ps2_keeb_host_recv(void) {
     uint32_t frame = 0;
     msg_t    msg   = MSG_OK;
+    uint8_t  dbgdata = 0;
 
     uint8_t has_data = pbuf_keeb_has_data();
     if (has_data) {
@@ -249,7 +330,9 @@ uint8_t ps2_keeb_host_recv(void) {
         ps2_keeb_error = PS2_ERR_NODATA;
     }
 
+    dbgdata = ps2_keeb_get_data_from_frame(frame);
+    if(dbgdata) dprintf("received: 0x%02X\n", dbgdata);
+
     return frame != 0 ? ps2_keeb_get_data_from_frame(frame) : 0;
 }
-
-#endif
+ */
