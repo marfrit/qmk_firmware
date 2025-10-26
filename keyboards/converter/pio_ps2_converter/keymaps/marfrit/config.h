@@ -1,0 +1,22 @@
+// my standard parameters
+#define PERMISSIVE_HOLD
+#undef  TAPPING_TERM
+#define TAPPING_TERM 175
+
+// debug make/ break codes
+#define DEBUG_LOWLEVEL
+
+//#define PS2_MOUSE_INIT_DELAY 1500
+
+
+#define PS2_MOUSE_X_MULTIPLIER 3
+#define PS2_MOUSE_Y_MULTIPLIER 3
+#define PS2_MOUSE_DEBUG_HID
+#define PS2_MOUSE_DEBUG_RAW
+
+#define PS2_MOUSE_SCROLL_BTN_MASK (1<<PS2_MOUSE_BTN_RIGHT) /* Default */
+#define PS2_MOUSE_SCROLL_BTN_SEND 300 /* Default */
+#define PS2_MOUSE_SCROLL_DIVISOR_H 8
+#define PS2_MOUSE_SCROLL_DIVISOR_V 8
+
+#define PS2_MOUSE_USE_REMOTE_MODE

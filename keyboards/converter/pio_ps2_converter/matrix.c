@@ -3,7 +3,7 @@
 #include "config.h"
 #include "print.h"
 #include "matrix.h"
-#include "ps2_keeb.h"
+#include "ps2_pio_keeb.h"
 #include "timer.h"
 #include "action.h"
 #include "host.h"
@@ -82,6 +82,9 @@ static uint16_t read_keyboard_id(void) {
 
     id |= code & 0xFF;
 
+#ifdef DEBUG_LOWLEVEL
+    dprintf("read_keyboard_id code: 0x%02X\n", code);
+#endif
 DONE:
     // Enable
     // code = ps2_host_send(0xF4);
@@ -784,6 +787,7 @@ uint8_t matrix_scan(void) {
                 dprint("state transition AT_RESET --> WAIT_AA\n");
                 state = WAIT_AA;
             }
+            wait_ms(250);
             break;
         case WAIT_AA:
             // 1) Read BAT code and ID on keybaord power-up
@@ -894,6 +898,9 @@ uint8_t matrix_scan(void) {
             dprintf("\nID:%04X(%s%s)\n", keyboard_id, KEYBOARD_KIND_STR(keyboard_kind), ID_STR(keyboard_id));
             dprint("state transition READ_ID --> SETUP\n");
 
+#ifdef DEBUG_LOWLEVEL
+            dprint("READ_ID --> SETUP\n");
+#endif
             state = SETUP;
             break;
         case SETUP:
@@ -919,6 +926,10 @@ uint8_t matrix_scan(void) {
                 // no code
                 break;
             }
+
+#ifdef DEBUG_LOWLEVEL
+            dprintf("Code received: 0x%02X\n", code);
+#endif
 
             // Keyboard Error/Overrun([3]p.26) or Buffer full
             // Scan Code Set 1: 0xFF
@@ -986,7 +997,6 @@ uint8_t matrix_key_count(void) {
 inline static uint8_t to_unimap(uint8_t code) {
     uint8_t row = ROW(code);
     uint8_t col = COL(code);
-
     switch (keyboard_kind) {
         case PC_AT:
             return pgm_read_byte(&unimap_cs2[row][col]);
@@ -999,7 +1009,6 @@ inline static uint8_t to_unimap(uint8_t code) {
 
 inline static void matrix_make(uint8_t code) {
     uint8_t newcode = to_unimap(code);
-
     if (!matrix_is_on(ROW(newcode), COL(newcode))) {
         matrix[ROW(newcode)] |= 1 << COL(newcode);
     }
@@ -1007,7 +1016,6 @@ inline static void matrix_make(uint8_t code) {
 
 inline static void matrix_break(uint8_t code) {
     uint8_t newcode = to_unimap(code);
-
     if (matrix_is_on(ROW(newcode), COL(newcode))) {
         matrix[ROW(newcode)] &= ~(1 << COL(newcode));
     }
@@ -1022,10 +1030,12 @@ void matrix_init(void) {
     uprint("TURNING ON POWER\n");
     setPinOutput(POWERPIN);
     writePinHigh(POWERPIN);
-    wait_ms(100);
+    wait_ms(50);
     //   writePinLow(POWERPIN);
     setPinOutput(GP17);
     writePinHigh(GP17);
+
+    wait_ms(1800);
 
     ps2_keeb_host_init();
     uprint("PS/2 INITIALIZED\n");

@@ -28,6 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             print((message));                                                           \
             xprintf(" command: %X, result: %X, error: %X \n", command, rcv, ps2_error); \
         }                                                                               \
+        if ((command == 0xFF) & (rcv != 0xFA)) {ps2_mouse_active = false;}              \
     } while (0)
 
 #define PS2_MOUSE_SEND_SAFE(command, message)          \
@@ -58,7 +59,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         __attribute__((unused)) uint8_t rcv = ps2_host_recv_response(); \
         if (debug_mouse) {                                              \
             print((message));                                           \
-            xprintf(" result: %X, error: %X \n", rcv, ps2_error);       \
+            dprintf(" result: %X, error: %X \n", rcv, ps2_error);       \
         }                                                               \
     } while (0)
 
@@ -151,6 +152,8 @@ typedef enum ps2_mouse_sample_rate_e {
     PS2_MOUSE_100_SAMPLES_SEC = 100,
     PS2_MOUSE_200_SAMPLES_SEC = 200,
 } ps2_mouse_sample_rate_t;
+
+extern bool ps2_mouse_active;
 
 void ps2_mouse_init(void);
 

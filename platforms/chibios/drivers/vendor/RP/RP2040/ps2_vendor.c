@@ -190,7 +190,7 @@ uint8_t ps2_host_send(uint8_t data) {
     osalSysLock();
     while (pio_sm_is_tx_fifo_full(pio, state_machine)) {
         pio_set_irq0_source_enabled(pio, pis_sm0_tx_fifo_not_full + state_machine, true);
-        msg = osalThreadSuspendTimeoutS(&tx_thread, TIME_MS2I(100));
+        msg = osalThreadSuspendTimeoutS(&tx_thread, TIME_MS2I(25));
         if (msg < MSG_OK) {
             pio_set_irq0_source_enabled(pio, pis_sm0_tx_fifo_not_full + state_machine, false);
             ps2_error = PS2_ERR_NODATA;
@@ -224,6 +224,11 @@ static uint8_t ps2_get_data_from_frame(uint32_t frame) {
         return 0;
     }
 
+    if (!data) {
+        ps2_error = PS2_ERR_NODATA;
+        return 0;
+    }
+
     return data;
 }
 
@@ -231,7 +236,7 @@ uint8_t ps2_host_recv_response(void) {
     uint32_t frame = 0;
     msg_t    msg   = MSG_OK;
 
-    msg = ibqReadTimeout(&pio_rx_queue, (uint8_t*)&frame, sizeof(uint32_t), TIME_MS2I(100));
+    msg = ibqReadTimeout(&pio_rx_queue, (uint8_t*)&frame, sizeof(uint32_t), TIME_MS2I(20));
     if (msg < MSG_OK) {
         ps2_error = PS2_ERR_NODATA;
         return 0;
@@ -246,6 +251,9 @@ bool pbuf_has_data(void) {
     osalSysLock();
     bool has_data = !ibqIsEmptyI(&pio_rx_queue);
     osalSysUnlock();
+    if(has_data) {
+        dprintln("I haz data!");
+    }
     return has_data;
 }
 
@@ -255,7 +263,7 @@ uint8_t ps2_host_recv(void) {
 
     uint8_t has_data = pbuf_has_data();
     if (has_data) {
-        msg = ibqReadTimeout(&pio_rx_queue, (uint8_t*)&frame, sizeof(uint32_t), TIME_MS2I(100));
+        msg = ibqReadTimeout(&pio_rx_queue, (uint8_t*)&frame, sizeof(uint32_t), TIME_MS2I(20));
         if (msg < MSG_OK) {
             ps2_error = PS2_ERR_NODATA;
             return 0;

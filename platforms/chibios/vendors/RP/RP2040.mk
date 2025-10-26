@@ -25,6 +25,7 @@ PICOSDKROOT   := $(TOP_DIR)/lib/pico-sdk
 PICOSDKSRC     = $(PICOSDKROOT)/src/rp2_common/hardware_clocks/clocks.c \
                  $(PICOSDKROOT)/src/rp2_common/hardware_pll/pll.c \
                  $(PICOSDKROOT)/src/rp2_common/hardware_pio/pio.c \
+                 $(PICOSDKROOT)/src/rp2_common/hardware_dma/dma.c \
                  $(PICOSDKROOT)/src/rp2_common/hardware_timer/timer.c \
                  $(PICOSDKROOT)/src/rp2_common/hardware_flash/flash.c \
                  $(PICOSDKROOT)/src/rp2_common/hardware_gpio/gpio.c \
@@ -44,6 +45,7 @@ PICOSDKINC     = $(CHIBIOS)//os/various/pico_bindings/dumb/include \
                  $(PICOSDKROOT)/src/rp2_common/hardware_irq/include \
                  $(PICOSDKROOT)/src/rp2_common/hardware_pll/include \
                  $(PICOSDKROOT)/src/rp2_common/hardware_pio/include \
+                 $(PICOSDKROOT)/src/rp2_common/hardware_dma/include \
                  $(PICOSDKROOT)/src/rp2_common/hardware_sync/include \
                  $(PICOSDKROOT)/src/rp2_common/hardware_timer/include \
                  $(PICOSDKROOT)/src/rp2_common/hardware_resets/include \
