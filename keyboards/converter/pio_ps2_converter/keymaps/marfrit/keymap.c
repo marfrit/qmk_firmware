@@ -68,3 +68,16 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     KC_CAPS,KC_LGUI,KC_LALT,    XXX,                KC_SPC,                 XXX,    XXX,    KC_RALT,KC_RGUI,KC_APP, KC_RCTL,     KC_LEFT,KC_DOWN,KC_RGHT,            KC_P0,  KC_PDOT,KC_PEQL
     ),
 };
+
+void keyboard_pre_init_user(void) {
+    debug_enable = true;
+    debug_keyboard = true;
+    return;
+}
+
+void keyboard_post_init_user(void) {
+    debug_enable   = true;
+    debug_keyboard = true;
+    debug_mouse    = true;
+    return;
+}

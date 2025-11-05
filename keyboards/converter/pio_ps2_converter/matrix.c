@@ -747,9 +747,7 @@ uint8_t matrix_scan(void) {
         if (!(ps2_keeb_error)) {
             // keyboard init again
             if (state == LOOP) {
-#ifdef DEBUG_LOWLEVEL
-    dprint("LOOP --> ERROR\n");
-#endif
+                dprint("state transition LOOP --> ERROR\n");
                 state = ERROR;
             }
         }
@@ -767,19 +765,15 @@ uint8_t matrix_scan(void) {
             matrix_clear();
 
             init_time = timer_read();
-#ifdef DEBUG_LOWLEVEL
-            dprint("INIT --> WAIT_SETTLE\n");
-#endif
+            dprint("state transition INIT --> WAIT_SETTLE\n");
             state     = WAIT_SETTLE;
             break;
         case WAIT_SETTLE:
             while (ps2_keeb_host_recv() != 0)
                 ; // read data
             // wait for keyboard to settle after plugin
-            if (timer_elapsed(init_time) > 750) {
-#ifdef DEBUG_LOWLEVEL
-            dprint("WAIT_SETTLE  -- AT_RESET\n");
-#endif
+            if (timer_elapsed(init_time) > 3000) {
+                dprint("state transition WAIT_SETTLE --> AT_RESET\n");
                 state = AT_RESET;
             }
             break;
@@ -789,10 +783,8 @@ uint8_t matrix_scan(void) {
             // https://github.com/tmk/tmk_keyboard/wiki/IBM-PC-AT-Keyboard-Protocol#select-alternate-scan-codesf0
 
             // reset command
-            if (0xFA ==  ps2_keeb_host_send(0xFF)) {
-#ifdef DEBUG_LOWLEVEL
-                dprint("AT_RESET --> WAIT_AA\n");
-#endif
+            if (0xFA == ps2_keeb_host_send(0xFF)) {
+                dprint("state transition AT_RESET --> WAIT_AA\n");
                 state = WAIT_AA;
             }
             wait_ms(250);
@@ -811,13 +803,9 @@ uint8_t matrix_scan(void) {
             }
             */
             if (ps2_keeb_host_recv() != 0) { // wait for AA
-#ifdef DEBUG_LOWLEVEL
-                dprintf("W%u \n", timer_read());
-#endif
+                dprintf("W%u\n", timer_read());
                 init_time = timer_read();
-#ifdef DEBUG_LOWLEVEL
-                dprint("WAIT_AA --> WAIT_AABF\n");
-#endif
+                dprint("state transition WAIT_AA --> WAIT_AABF\n");
                 state     = WAIT_AABF;
             }
             break;
@@ -825,30 +813,22 @@ uint8_t matrix_scan(void) {
             // NOTE: we can omit to wait BF BF
             // ID takes 500ms max? TechRef [8] 4-41, though 1ms is enough for 122-key Terminal 6110345
             if (timer_elapsed(init_time) > 500) {
-#ifdef DEBUG_LOWLEVEL
-                dprint("WAIT_AABF --> READ_ID\n");
-#endif
+                dprint("state transition WAIT_AABF --> WAIT_READ_ID\n");
                 state = READ_ID;
             }
             if (ps2_keeb_host_recv() != 0) { // wait for BF
                 init_time = timer_read();
-#ifdef DEBUG_LOWLEVEL
-                dprint("WAIT_AABF --> WAIT_AABFBF\n");
-#endif
+                dprint("state transition WAIT_AABF --> WAIT_AABFBF\n");
                 state     = WAIT_AABFBF;
             }
             break;
         case WAIT_AABFBF:
             if (timer_elapsed(init_time) > 500) {
-#ifdef DEBUG_LOWLEVEL
-                dprint("WAIT_AABFBF --> READ_ID timeout\n");
-#endif
+                dprint("state transition 1 WAIT_AABFBF --> READ_ID\n");
                 state = READ_ID;
             }
             if (ps2_keeb_host_recv() != 0) { // wait for BF
-#ifdef DEBUG_LOWLEVEL
-                dprint("WAIT_AABFBF --> READ_ID after id received\n");
-#endif
+                dprint("state transition 2 WAIT_AABFBF --> READ_ID\n");
                 state = READ_ID;
             }
             break;
@@ -915,7 +895,8 @@ uint8_t matrix_scan(void) {
                 }
             }
 
-            dprintf("\nID:%04X(%s%s) \n", keyboard_id, KEYBOARD_KIND_STR(keyboard_kind), ID_STR(keyboard_id));
+            dprintf("\nID:%04X(%s%s)\n", keyboard_id, KEYBOARD_KIND_STR(keyboard_kind), ID_STR(keyboard_id));
+            dprint("state transition READ_ID --> SETUP\n");
 
 #ifdef DEBUG_LOWLEVEL
             dprint("READ_ID --> SETUP\n");
@@ -936,9 +917,8 @@ uint8_t matrix_scan(void) {
                 default:
                     break;
             }
-#ifdef DEBUG_LOWLEVEL
-            dprint("SETUP --> LOOP\n");
-#endif
+
+            dprint("state transition SETUP --> LOOP\n");
             state = LOOP;
         case LOOP: {
             uint8_t code = ps2_keeb_host_recv();
@@ -966,18 +946,14 @@ uint8_t matrix_scan(void) {
             switch (keyboard_kind) {
                 case PC_AT:
                     if (process_cs2(code) == -1) {
+                        dprintf("state transition LOOP --> ERROR code interpretation CS2 code 0x%02X\n", code);
                         state = ERROR;
-#ifdef DEBUG_LOWLEVEL
-                        dprint("LOOP --> ERROR (cs2)\n");
-#endif
                     }
                     break;
                 case PC_TERMINAL:
                     if (process_cs3(code) == -1) {
+                        dprintf("state transition LOOP --> ERROR code interpretation CS3 code 0x%02X\n", code);
                         state = ERROR;
-#ifdef DEBUG_LOWLEVEL
-                        dprint("LOOP --> ERROR (cs3)\n");
-#endif
                     }
                     break;
                 default:
@@ -987,9 +963,7 @@ uint8_t matrix_scan(void) {
         case ERROR:
             // something goes wrong
             clear_keyboard();
-#ifdef DEBUG_LOWLEVEL
-            dprint("ERROR --> INIT\n");
-#endif
+            dprint("state transition ERROR --> INIT\n");
             state = INIT;
             break;
         default:
@@ -1023,9 +997,6 @@ uint8_t matrix_key_count(void) {
 inline static uint8_t to_unimap(uint8_t code) {
     uint8_t row = ROW(code);
     uint8_t col = COL(code);
-#ifdef DEBUG_LOWLEVEL
-    dprintf("Before unimap: %02X, ", code);
-#endif
     switch (keyboard_kind) {
         case PC_AT:
             return pgm_read_byte(&unimap_cs2[row][col]);
@@ -1038,9 +1009,6 @@ inline static uint8_t to_unimap(uint8_t code) {
 
 inline static void matrix_make(uint8_t code) {
     uint8_t newcode = to_unimap(code);
-#ifdef DEBUG_LOWLEVEL
-    dprintf("Make after unimap:  %02X\n", newcode);
-#endif
     if (!matrix_is_on(ROW(newcode), COL(newcode))) {
         matrix[ROW(newcode)] |= 1 << COL(newcode);
     }
@@ -1048,25 +1016,18 @@ inline static void matrix_make(uint8_t code) {
 
 inline static void matrix_break(uint8_t code) {
     uint8_t newcode = to_unimap(code);
-#ifdef DEBUG_LOWLEVEL
-    dprintf("Break after unimap: %02X\n", newcode);
-#endif
     if (matrix_is_on(ROW(newcode), COL(newcode))) {
         matrix[ROW(newcode)] &= ~(1 << COL(newcode));
     }
 }
 
 void matrix_init(void) {
-#ifdef DEBUG_LOWLEVEL
-  debug_enable=true;
-  debug_matrix=true;
-  debug_keyboard=true;
-  debug_mouse=true;
-#endif
-    wait_ms(50);
-#ifdef DEBUG_LOWLEVEL
-    dprint("TURNING ON POWER\n");
-#endif
+    debug_enable   = true;
+    debug_keyboard = true;
+    debug_mouse    = true;
+
+    wait_ms(2000);
+    uprint("TURNING ON POWER\n");
     setPinOutput(POWERPIN);
     writePinHigh(POWERPIN);
     wait_ms(50);
@@ -1077,18 +1038,14 @@ void matrix_init(void) {
     wait_ms(1800);
 
     ps2_keeb_host_init();
-#ifdef DEBUG_LOWLEVEL
-    dprint("PS/2 INITIALIZED\n");
-#endif
+    uprint("PS/2 INITIALIZED\n");
 
     // initialize matrix state: all keys off
     for (uint8_t i = 0; i < MATRIX_ROWS; i++)
         matrix[i] = 0x00;
 
     matrix_init_kb();
-#ifdef DEBUG_LOWLEVEL
-    dprint("KEYBOARD INITIALIZED\n");
-#endif
+    uprint("KEYBOARD INITIALIZED\n");
     return;
 }
 

@@ -91,3 +91,4 @@ uint8_t ps2_keeb_host_recv_response(void);
 uint8_t ps2_keeb_host_recv(void);
 void    ps2_keeb_host_set_led(uint8_t usb_led);
 bool    pbuf_keeb_has_data(void);
+void    ps2_keeb_post_data(void);
