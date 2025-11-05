@@ -1,5 +1,4 @@
 // Copyright 2022 Marek Kraus (@gamelaster)
-// 2024 Markus Fritsche (@marfrit)
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include <stdint.h>
@@ -22,7 +21,7 @@
 
 static inline void pio_serve_keeb_interrupt(void);
 
-static const PIO pio = pio1; /* Use PIO1 since PIO0 is busy with the PS/2 mouse */
+static const PIO pio = pio1;
 
 /* buffer for data received from device */
 #define RINGBUF_SIZE    16
@@ -82,14 +81,9 @@ static const struct pio_program ps2_program = {
 static int                state_machine = -1;
 static thread_reference_t tx_thread     = NULL;
 
-/* Setup of two queues, one for messages from the keyboard to the host, one
-   for replies directly following a send since the matrix code relies on checking
-   the direct ACK of some messages to the keyboard */
 #define BUFFER_SIZE 32
-static input_buffers_queue_t               pio_msg_queue;
-static __attribute__((aligned(4))) uint8_t pio_msg_buffer[BQ_BUFFER_SIZE(BUFFER_SIZE, sizeof(uint32_t))];
-static input_buffers_queue_t               pio_rpl_queue;
-static __attribute__((aligned(4))) uint8_t pio_rpl_buffer[BQ_BUFFER_SIZE(BUFFER_SIZE, sizeof(uint32_t))];
+static input_buffers_queue_t               pio_rx_queue;
+static __attribute__((aligned(4))) uint8_t pio_rx_buffer[BQ_BUFFER_SIZE(BUFFER_SIZE, sizeof(uint32_t))];
 
 uint8_t ps2_keeb_error = PS2_ERR_NONE;
 
@@ -98,24 +92,13 @@ void pio_serve_keeb_interrupt(void) {
 
     if (irqs & (PIO_IRQ1_INTF_SM0_RXNEMPTY_BITS << state_machine)) {
         osalSysLockFromISR();
-        frame = pio_sm_get(pio, state_machine);
-        /* Check if the frame includes the 'reply' tagging */
-        uint32_t is_msg  = (frame & 0b00000000000100000000000000000000) ? 0 : 1;
-        if (is_msg) {
-            frame_buffer = (uint32_t*)ibqGetEmptyBufferI(&pio_msg_queue);
-        } else {
-            frame_buffer = (uint32_t*)ibqGetEmptyBufferI(&pio_rpl_queue);
-        }
+        uint32_t* frame_buffer = (uint32_t*)ibqGetEmptyBufferI(&pio_rx_queue);
         if (frame_buffer == NULL) {
             osalSysUnlockFromISR();
             return;
         }
-        *frame_buffer = frame;
-        if (is_msg) {
-            ibqPostFullBufferI(&pio_msg_queue, sizeof(uint32_t));
-        } else {
-            ibqPostFullBufferI(&pio_rpl_queue, sizeof(uint32_t));
-        }
+        *frame_buffer = pio_sm_get(pio, state_machine);
+        ibqPostFullBufferI(&pio_rx_queue, sizeof(uint32_t));
         osalSysUnlockFromISR();
     }
 
@@ -184,9 +167,6 @@ void ps2_keeb_host_init(void) {
     nvicEnableVector(RP_PIO1_IRQ_1_NUMBER, CORTEX_MAX_KERNEL_PRIORITY);
 
     pio_sm_set_enabled(pio, state_machine, true);
-#ifdef DEBUG_LOWLEVEL
-    dprint("PIO state machine started.\n");
-#endif
 }
 
 static int bit_parity(int x) {
@@ -247,15 +227,6 @@ void ps2_keeb_sort_data_from_frame(uint32_t frame) {
 //    dprintf("data: 0x%02X\n", data);
     lastmsg = frame;
 
-#ifdef DEBUG_LOWLEVEL
-    dprintf("0x%02X\n", data);
-#endif
-
-#ifdef DEBUG_FRAMES
-    dprintf("frame_rec: "BYTE_TO_BINARY_PATTERN" "BYTE_TO_BINARY_PATTERN" "BYTE_TO_BINARY_PATTERN" "BYTE_TO_BINARY_PATTERN"\n",
-            BYTE_TO_BINARY(frame>>24), BYTE_TO_BINARY(frame>>16), BYTE_TO_BINARY(frame>>8), BYTE_TO_BINARY(frame));
-#endif
-
     if (start_bit != 0) {
         ps2_keeb_error = PS2_ERR_STARTBIT1;
 //        dprint("startbit error\n");
@@ -272,10 +243,6 @@ void ps2_keeb_sort_data_from_frame(uint32_t frame) {
         ps2_keeb_error = PS2_ERR_STARTBIT2;
 //        dprint("stopbit error\n");
         return;
-    }
-    if (!data) {
-        ps2_keeb_error = PS2_ERR_OVERFLOW;
-        return 0;
     }
 
     if (repl_bit == 0) {
@@ -329,8 +296,7 @@ void ps2_keeb_post_data(void) {
     uint32_t frame = 0;
     msg_t    msg   = MSG_OK;
 
-    /* get data from the reply queue if availabe */
-    msg = ibqReadTimeout(&pio_rpl_queue, (uint8_t*)&frame, sizeof(uint32_t), TIME_MS2I(PS2_KEEB_TIMEOUT_NO_DATA));
+    msg = ibqReadTimeout(&pio_rx_queue, (uint8_t*)&frame, sizeof(uint32_t), TIME_MS2I(100));
     if (msg < MSG_OK) {
         ps2_keeb_error = PS2_ERR_NODATA;
         return 0;
@@ -342,10 +308,8 @@ void ps2_keeb_post_data(void) {
 }
  */
 bool pbuf_keeb_has_data(void) {
-    /* check if data has been received from the device via the ISR and been queued into the
-       messages queue */
     osalSysLock();
-    bool has_data = !ibqIsEmptyI(&pio_msg_queue);
+    bool has_data = !ibqIsEmptyI(&pio_rx_queue);
     osalSysUnlock();
     return has_data;
 }
@@ -357,7 +321,7 @@ bool pbuf_keeb_has_data(void) {
 
     uint8_t has_data = pbuf_keeb_has_data();
     if (has_data) {
-        msg = ibqReadTimeout(&pio_msg_queue, (uint8_t*)&frame, sizeof(uint32_t), TIME_MS2I(PS2_KEEB_TIMEOUT_NO_DATA));
+        msg = ibqReadTimeout(&pio_rx_queue, (uint8_t*)&frame, sizeof(uint32_t), TIME_MS2I(100));
         if (msg < MSG_OK) {
             ps2_keeb_error = PS2_ERR_NODATA;
             return 0;
