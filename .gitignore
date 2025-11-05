@@ -118,3 +118,4 @@ compile_commands.json
 via*.json
 /keyboards/**/keymaps/vial/*
 rp2040_error*
+.github/copilot-instructions.md
