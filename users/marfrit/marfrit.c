@@ -54,10 +54,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   case MUTE_TEAMS:
     if (record->event.pressed) {
         mute_hold_timert = timer_read();
-        tap_code16(LCTL(LSFT(KC_M)));
+        tap_code16(LGUI(LALT(KC_K)));
     } else {
         if (timer_elapsed(mute_hold_timert) > MUTE_HOLD_DELAY)
-            tap_code16(LCTL(LSFT(KC_M)));
+            tap_code16(LGUI(LALT(KC_K)));
     }
     break;
   case MUTE_SKYPE:
