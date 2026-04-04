@@ -216,43 +216,42 @@ uint8_t ps2_keeb_host_send(uint8_t data) {
 }
 
 void ps2_keeb_sort_data_from_frame(uint32_t frame) {
-    dprint("ps2_keeb_sort_data_from_frame\n");
     uint8_t  data       = (frame >> 22) & 0xFF;
     uint32_t start_bit  = (frame & 0b00000000001000000000000000000000) ? 1 : 0;
     uint32_t parity_bit = (frame & 0b01000000000000000000000000000000) ? 1 : 0;
     uint32_t stop_bit   = (frame & 0b10000000001000000000000000000000) ? 1 : 0;
     uint32_t repl_bit   = (frame & 0b00000000000100000000000000000000) ? 1 : 0;
 
-//    dprintf("frame: 0x%" PRIX32 "\n", frame);
-//    dprintf("data: 0x%02X\n", data);
     lastmsg = frame;
 
-    if (start_bit != 0) {
-        ps2_keeb_error = PS2_ERR_STARTBIT1;
-//        dprint("startbit error\n");
+    /*
+     * Frame sanity check: validate start, stop, and parity bits before
+     * trusting the repl_bit flag. If the frame is malformed (noise, hot-plug,
+     * timing violation), the bit positions may have shifted and the repl_bit
+     * could actually be a data bit from a misaligned frame.
+     */
+    bool valid_frame = (start_bit == 0)
+                    && (stop_bit == 1)
+                    && (parity_bit == bit_parity(data));
+
+    if (!valid_frame) {
+        if (start_bit != 0) {
+            ps2_keeb_error = PS2_ERR_STARTBIT1;
+        } else if (stop_bit != 1) {
+            ps2_keeb_error = PS2_ERR_STARTBIT2;
+        } else {
+            ps2_keeb_error = PS2_ERR_PARITY;
+        }
+        dprintf("bad frame: 0x%08lX (err=%d)\n", frame, ps2_keeb_error);
         return;
     }
 
-    if (parity_bit != bit_parity(data)) {
-        ps2_keeb_error = PS2_ERR_PARITY;
-//        dprint("parity error\n");
-        return;
-    }
-
-    if (stop_bit != 1) {
-        ps2_keeb_error = PS2_ERR_STARTBIT2;
-//        dprint("stopbit error\n");
-        return;
-    }
-
-    if (repl_bit == 0) {
- //       dprint("message\n");
-        ringbuf_push(&messagesb, data);
-    } else {
- //       dprint("reply\n");
+    /* Frame is valid - repl_bit is trustworthy */
+    if (repl_bit) {
         ringbuf_push(&repliesb, data);
+    } else {
+        ringbuf_push(&messagesb, data);
     }
-    return;
 }
 
 uint8_t ps2_keeb_host_recv_response(void) {
