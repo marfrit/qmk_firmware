@@ -99,3 +99,36 @@ If any check fails, the frame is discarded entirely — preventing misrouted dat
 ## Debug Resources
 
 The `rp2040_error.sr` and `rp2040_error2.sr` files are sigrok/PulseView logic analyzer captures of PS/2 communication, useful for debugging protocol issues.
+
+## Mouse Mode Toggle
+
+The converter supports runtime switching between PS/2 Remote Mode and Stream Mode.
+
+### Default Mode
+
+Remote Mode is the default, configured in `config.h`:
+
+```c
+#define PS2_MOUSE_USE_REMOTE_MODE
+```
+
+To default to Stream Mode instead, remove this define (or comment it out). The runtime toggle works regardless of the default.
+
+### Runtime Toggle
+
+Assign `QK_USER_0` to a key in your keymap to toggle between modes:
+
+```c
+[_FN] = LAYOUT(
+    ..., QK_USER_0, ...
+)
+```
+
+Pressing the key switches the mouse between Remote and Stream mode immediately. Debug output (if enabled) will print the current mode.
+
+### When to Use Each Mode
+
+| Mode | Best For | Caveat |
+|------|----------|--------|
+| **Remote** (default) | IBM TrackPoint (M4, M13), combined keyboard/mouse | Slightly higher latency (~10ms polling) |
+| **Stream** | Standard PS/2 mice, gaming mice | May cause click glitches on TrackPoint devices |

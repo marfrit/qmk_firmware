@@ -335,3 +335,8 @@ bool pbuf_keeb_has_data(void) {
     return frame != 0 ? ps2_keeb_get_data_from_frame(frame) : 0;
 }
  */
+
+/* Compatibility wrapper for stream mode in ps2_mouse.c */
+bool pbuf_has_data(void) {
+    return !ringbuf_is_empty(&messagesb);
+}

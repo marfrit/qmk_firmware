@@ -235,3 +235,17 @@ const uint8_t PROGMEM unimap_cs3[MATRIX_ROWS][MATRIX_COLS] = {
     { UNIMAP_P0,    UNIMAP_PDOT,  UNIMAP_P2,    UNIMAP_P5,    UNIMAP_P6,    UNIMAP_P8,    UNIMAP_ESC,   UNIMAP_NLCK,    /* 70-77 */
       UNIMAP_PEQL,  UNIMAP_PENT,  UNIMAP_P3,    UNIMAP_PMNS,  UNIMAP_PPLS,  UNIMAP_P9,    UNIMAP_SLCK,  UNIMAP_PAST  }, /* 78-7F */
 };
+
+/* Custom keycode for mouse mode toggle */
+#include "drivers/ps2/ps2_mouse.h"
+
+bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
+    if (!process_record_user(keycode, record)) {
+        return false;
+    }
+    if (keycode == QK_USER_0 && record->event.pressed) {
+        ps2_mouse_toggle_mode();
+        return false;
+    }
+    return true;
+}

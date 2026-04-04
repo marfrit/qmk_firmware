@@ -17,6 +17,33 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <stdbool.h>
 #include "ps2_mouse.h"
+
+/* Runtime mouse mode toggle - default from config, switchable via keycode */
+#ifndef PS2_MOUSE_DEFAULT_REMOTE
+#  ifdef PS2_MOUSE_USE_REMOTE_MODE
+#    define PS2_MOUSE_DEFAULT_REMOTE true
+#  else
+#    define PS2_MOUSE_DEFAULT_REMOTE false
+#  endif
+#endif
+static bool ps2_mouse_remote_mode = PS2_MOUSE_DEFAULT_REMOTE;
+
+bool ps2_mouse_is_remote_mode(void) {
+    return ps2_mouse_remote_mode;
+}
+
+void ps2_mouse_toggle_mode(void) {
+    ps2_mouse_remote_mode = !ps2_mouse_remote_mode;
+    if (ps2_mouse_remote_mode) {
+        ps2_mouse_set_remote_mode();
+        dprint("ps2 mouse: switched to remote mode\n");
+    } else {
+        ps2_mouse_set_stream_mode();
+        ps2_mouse_enable_data_reporting();
+        dprint("ps2 mouse: switched to stream mode\n");
+    }
+}
+
 #include "wait.h"
 #include "gpio.h"
 #include "host.h"
@@ -81,31 +108,27 @@ void ps2_mouse_task(void) {
     if(!ps2_mouse_active) return;
 
     /* receives packet from mouse */
-#ifdef PS2_MOUSE_USE_REMOTE_MODE
-    uint8_t rcv;
-    rcv = ps2_host_send(PS2_MOUSE_READ_DATA);
-    if (rcv == PS2_ACK) {
-        mouse_report.buttons = ps2_host_recv_response();
-        mouse_report.x       = ps2_host_recv_response();
-        mouse_report.y       = ps2_host_recv_response();
-#    ifdef PS2_MOUSE_ENABLE_SCROLLING
-        mouse_report.v = -(ps2_host_recv_response() & PS2_MOUSE_SCROLL_MASK);
-#    endif
-    } /* else {
-        if (debug_mouse) print("ps2_mouse: fail to get mouse packet\n");
-    } */
-#else
-    if (pbuf_has_data()) {
-        mouse_report.buttons = ps2_host_recv_response();
-        mouse_report.x       = ps2_host_recv_response();
-        mouse_report.y       = ps2_host_recv_response();
-#    ifdef PS2_MOUSE_ENABLE_SCROLLING
-        mouse_report.v       = -(ps2_host_recv_response() & PS2_MOUSE_SCROLL_MASK);
-#    endif
-    } /* else {
-        if (debug_mouse) print("ps2_mouse: fail to get mouse packet\n");
-    } */
+    if (ps2_mouse_remote_mode) {
+        uint8_t rcv;
+        rcv = ps2_host_send(PS2_MOUSE_READ_DATA);
+        if (rcv == PS2_ACK) {
+            mouse_report.buttons = ps2_host_recv_response();
+            mouse_report.x       = ps2_host_recv_response();
+            mouse_report.y       = ps2_host_recv_response();
+#ifdef PS2_MOUSE_ENABLE_SCROLLING
+            mouse_report.v = -(ps2_host_recv_response() & PS2_MOUSE_SCROLL_MASK);
 #endif
+        }
+    } else {
+        if (pbuf_has_data()) {
+            mouse_report.buttons = ps2_host_recv_response();
+            mouse_report.x       = ps2_host_recv_response();
+            mouse_report.y       = ps2_host_recv_response();
+#ifdef PS2_MOUSE_ENABLE_SCROLLING
+            mouse_report.v       = -(ps2_host_recv_response() & PS2_MOUSE_SCROLL_MASK);
+#endif
+        }
+    }
 
     mouse_report.buttons |= tp_buttons;
     /* if mouse moves or buttons state changes */

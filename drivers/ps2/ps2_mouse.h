@@ -167,6 +167,11 @@ void ps2_mouse_enable_data_reporting(void);
 
 void ps2_mouse_set_remote_mode(void);
 
+/* Runtime mouse mode toggle */
+bool ps2_mouse_is_remote_mode(void);
+void ps2_mouse_toggle_mode(void);
+
+
 void ps2_mouse_set_stream_mode(void);
 
 void ps2_mouse_set_scaling_2_1(void);
