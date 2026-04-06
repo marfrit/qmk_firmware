@@ -112,6 +112,8 @@
                 "atmega328p",
                 "atmega328",
                 "attiny85",
+                "linux",
+                "windows",
                 "unknown"
             ]
         },

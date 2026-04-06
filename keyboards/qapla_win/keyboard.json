@@ -1,0 +1,37 @@
+{
+    "keyboard_name": "QAP'LA Windows",
+    "manufacturer": "QAP'LA Project",
+    "usb": {
+        "vid": "0x1209",
+        "pid": "0x4B43",
+        "device_version": "0.1.0"
+    },
+    "processor": "windows",
+    "bootloader": "unknown",
+    "matrix_size": {
+        "rows": 16,
+        "cols": 16
+    },
+    "layouts": {
+        "LAYOUT": {
+            "layout": [
+                {"matrix": [1, 11], "x": 0, "y": 0, "label": "ESC"},
+                {"matrix": [3, 0], "x": 1, "y": 0, "label": "1"},
+                {"matrix": [3, 1], "x": 2, "y": 0, "label": "2"},
+                {"matrix": [3, 2], "x": 3, "y": 0, "label": "3"},
+                {"matrix": [3, 3], "x": 4, "y": 0, "label": "4"},
+                {"matrix": [3, 4], "x": 5, "y": 0, "label": "5"},
+                {"matrix": [3, 5], "x": 6, "y": 0, "label": "6"},
+                {"matrix": [3, 6], "x": 7, "y": 0, "label": "7"},
+                {"matrix": [3, 7], "x": 8, "y": 0, "label": "8"},
+                {"matrix": [3, 8], "x": 9, "y": 0, "label": "9"},
+                {"matrix": [3, 9], "x": 10, "y": 0, "label": "0"},
+                {"matrix": [0, 8], "x": 11, "y": 0, "label": "BKSP"},
+                {"matrix": [0, 9], "x": 12, "y": 0, "label": "TAB"},
+                {"matrix": [4, 1], "x": 0, "y": 1, "label": "A"},
+                {"matrix": [2, 0], "x": 1, "y": 1, "label": "SPACE"},
+                {"matrix": [0, 13], "x": 2, "y": 1, "label": "ENTER"}
+            ]
+        }
+    }
+}
