@@ -8,6 +8,8 @@ HEX =
 EEP =
 BIN =
 
+FIRMWARE_FORMAT = exe
+
 COMPILEFLAGS += -funsigned-char
 COMPILEFLAGS += -fshort-enums
 COMPILEFLAGS += -DPLATFORM_WINDOWS

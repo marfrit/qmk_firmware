@@ -99,11 +99,5 @@ bool has_mouse_report_changed(report_mouse_t *new_report, report_mouse_t *old_re
     return memcmp(new_report, old_report, sizeof(report_mouse_t)) != 0;
 }
 
-// mingw WinMain stub — --allow-multiple-definition pulls in GUI CRT
-#undef KEY_EVENT
-#include <windows.h>
-extern int main(void);
-int WINAPI WinMain(HINSTANCE h, HINSTANCE p, LPSTR c, int s) {
-    (void)h; (void)p; (void)c; (void)s;
-    return main();
-}
+// No WinMain needed — QMK's main() is strong on Windows (not weak),
+// and we build with -mconsole so the CRT calls main() directly.

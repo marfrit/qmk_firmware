@@ -34,7 +34,9 @@ void protocol_keyboard_task(void) {
  *
  * FIXME: Needs doc
  */
+#ifndef PLATFORM_WINDOWS
 int main(void) __attribute__((weak));
+#endif
 int main(void) {
     platform_setup();
     protocol_setup();

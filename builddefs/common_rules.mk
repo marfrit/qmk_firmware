@@ -178,6 +178,7 @@ DFU_SUFFIX_ARGS ?=
 
 
 elf: $(BUILD_DIR)/$(TARGET).elf
+exe: $(BUILD_DIR)/$(TARGET).exe
 hex: $(BUILD_DIR)/$(TARGET).hex
 uf2: $(BUILD_DIR)/$(TARGET).uf2
 cpfirmware_qmk: $(FIRMWARE_FORMAT)
@@ -213,7 +214,12 @@ sizeafter: $(BUILD_DIR)/$(TARGET).hex
 gccversion :
 	@$(SILENT) || $(CC) --version
 
-# Create final output files (.hex, .eep) from ELF output file.
+# Create final output files (.hex, .eep, .exe) from ELF output file.
+# mingw produces PE executables via the normal link step; just rename.
+%.exe: %.elf
+	@$(SILENT) || printf "$(MSG_FLASH) $@" | $(AWK_CMD)
+	@$(COPY) $< $@ && $(PRINT_OK)
+
 %.hex: %.elf
 	$(eval CMD=$(HEX) $< $@)
 	#@$(SILENT) || printf "$(MSG_EXECUTING) '$(CMD)':\n"
