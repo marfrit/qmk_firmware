@@ -1,0 +1,20 @@
+[Unit]
+Description=QAP'LA — QMK keyboard remapper
+Documentation=https://github.com/marfrit/qapla
+After=systemd-logind.service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/qapla
+Restart=on-failure
+RestartSec=3
+
+# Uncomment to target a specific keyboard:
+#Environment=QAPLA_EVDEV=/dev/input/event3
+
+# Permissions: requires udev rules (99-qapla.rules) and user in 'input' group
+# Alternatively, use AmbientCapabilities for a system service:
+#AmbientCapabilities=CAP_DAC_READ_SEARCH
+
+[Install]
+WantedBy=default.target

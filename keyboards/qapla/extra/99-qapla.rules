@@ -1,0 +1,15 @@
+# QAP'LA udev rules — allow non-root access to input devices, uinput, and uhid
+#
+# Install: sudo cp 99-qapla.rules /etc/udev/rules.d/
+#          sudo udevadm control --reload-rules && sudo udevadm trigger
+#          sudo usermod -aG input $USER  (then re-login)
+
+# uinput: allow input group to create virtual input devices
+KERNEL=="uinput", SUBSYSTEM=="misc", MODE="0660", GROUP="input"
+
+# uhid: allow input group to create virtual HID devices (for Vial)
+KERNEL=="uhid", SUBSYSTEM=="misc", MODE="0660", GROUP="input"
+
+# evdev: already accessible via input group on most distros
+# If not, uncomment:
+# SUBSYSTEM=="input", GROUP="input", MODE="0660"
