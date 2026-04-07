@@ -1,0 +1,20 @@
+{
+    "keyboard_name": "CFW Keyboard Converter",
+    "manufacturer": "Markus Fritsche",
+    "maintainer": "marfrit",
+    "usb": {
+        "vid": "0xFEED",
+        "pid": "0xCF00",
+        "device_version": "2.0.0"
+    },
+    "features": {
+        "bootmagic": false,
+        "mousekey": true,
+        "extrakey": true,
+        "nkro": true
+    },
+    "matrix_size": {
+        "cols": 16,
+        "rows": 8
+    }
+}
