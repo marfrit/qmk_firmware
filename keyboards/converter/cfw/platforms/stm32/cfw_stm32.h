@@ -79,6 +79,7 @@
 #pragma once
 
 #include "cfw.h"
+#include "ps2_isr_common.h"
 #include "ch.h"
 #include "hal.h"
 
@@ -87,6 +88,8 @@
 #ifndef CFW_STM32_RING_SIZE
 #define CFW_STM32_RING_SIZE 32
 #endif
+_Static_assert((CFW_STM32_RING_SIZE & (CFW_STM32_RING_SIZE - 1)) == 0,
+               "CFW_STM32_RING_SIZE must be a power of 2");
 
 // ---- Board Pin Presets ----
 // Define CFW_STM32_BOARD in your keyboard's config.h to use a preset,
@@ -135,10 +138,8 @@ typedef struct {
     cfw_pin_t data_pin;
     cfw_pin_t clock_pin;
 
-    // ISR state (same approach as AVR, just faster)
-    volatile uint8_t isr_state;
-    volatile uint8_t isr_data;
-    volatile uint8_t isr_parity;
+    // ISR state: shared PS/2 frame assembler (see wire/ps2_isr_common.h)
+    cfw_ps2_isr_t isr;
 
     // Ring buffer
     uint8_t ring[CFW_STM32_RING_SIZE];

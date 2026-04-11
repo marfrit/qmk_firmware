@@ -6,6 +6,7 @@
 #include "gpio.h"
 #include "timer.h"
 #include "wait.h"
+#include <avr/io.h>
 
 // ---- Pin control ----
 // AVR open-collector: output-low = drive low, input-pullup = release (high)
@@ -52,11 +53,24 @@ static void avr_delay_us(uint32_t us) {
 }
 
 static uint32_t avr_micros(void) {
-    // QMK's timer is millisecond-resolution on AVR.
-    // For microsecond precision we'd need TCNT access.
-    // For timeout calculations, ms*1000 is close enough —
-    // the actual timing-critical stuff happens in the ISR.
-    return (uint32_t)timer_read32() * 1000;
+    // QMK uses Timer 0 for its millisecond counter.
+    // Timer 0 runs at F_CPU/64 = 250kHz at 16MHz, so TCNT0
+    // increments every 4us. We combine the ms counter with
+    // TCNT0 for ~4us resolution — good enough for ADB bit
+    // timing (35/65us cells) and general timeout calculations.
+    //
+    // We must read TCNT0 and the ms counter atomically, and
+    // check for a pending overflow to avoid a race where TCNT0
+    // has wrapped but the ISR hasn't incremented the ms counter yet.
+    uint8_t sreg = SREG;
+    cli();
+    uint32_t ms = timer_read32();
+    uint8_t tcnt = TCNT0;
+    if ((TIFR0 & _BV(TOV0)) && tcnt < 128) {
+        ms++;
+    }
+    SREG = sreg;
+    return ms * 1000UL + (uint32_t)tcnt * (64UL * 1000000UL / F_CPU);
 }
 
 // ---- Edge detection ----

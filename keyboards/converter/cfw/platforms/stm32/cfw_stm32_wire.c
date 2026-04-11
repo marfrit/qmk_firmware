@@ -25,6 +25,7 @@
 
 #include "cfw_stm32.h"
 #include "wait.h"
+#include "ps2_isr_common.h"
 #include <string.h>
 
 // ---- Global context for PAL callback ----
@@ -73,45 +74,12 @@ static void cfw_stm32_clock_callback(void *arg) {
     if (!ctx) ctx = cfw_stm32_active_ctx;
     if (!ctx) return;
 
-    // Sample data pin
     uint8_t bit = palReadLine(ctx->data_pin) == PAL_HIGH ? 1 : 0;
-
-    switch (ctx->isr_state) {
-        case 0:  // Start bit
-            if (bit != 0) { ctx->isr_state = 0; return; }
-            ctx->isr_data = 0;
-            ctx->isr_parity = 0;
-            ctx->isr_state = 1;
-            break;
-
-        case 1: case 2: case 3: case 4:
-        case 5: case 6: case 7: case 8:  // Data bits
-            ctx->isr_data >>= 1;
-            if (bit) {
-                ctx->isr_data |= 0x80;
-                ctx->isr_parity++;
-            }
-            ctx->isr_state++;
-            break;
-
-        case 9:  // Parity
-            if (bit) ctx->isr_parity++;
-            if (!(ctx->isr_parity & 1)) { ctx->isr_state = 0; return; }
-            ctx->isr_state = 10;
-            break;
-
-        case 10:  // Stop bit
-            if (bit) {
-                chSysLockFromISR();
-                ring_push(ctx, ctx->isr_data);
-                chSysUnlockFromISR();
-            }
-            ctx->isr_state = 0;
-            break;
-
-        default:
-            ctx->isr_state = 0;
-            break;
+    int16_t result = cfw_ps2_isr_step(&ctx->isr, bit);
+    if (result >= 0) {
+        chSysLockFromISR();
+        ring_push(ctx, (uint8_t)result);
+        chSysUnlockFromISR();
     }
 }
 

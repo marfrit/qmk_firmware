@@ -126,6 +126,7 @@ void cfw_clock_data_release_default(void *self);
 int8_t cfw_clock_data_recv_bit_default(void *self, uint32_t timeout_us);
 void cfw_clock_data_send_bit_default(void *self, uint8_t bit);
 
-// Generic software UART using platform timing + pin_read/pin_write
-int16_t cfw_uart_recv_byte_default(void *self, uint32_t timeout_us);
-void cfw_uart_send_byte_default(void *self, uint8_t byte);
+// Generic software UART — not yet implemented.
+// Will be needed for Sun Type 3/5, Palm, Siemens converters.
+// int16_t cfw_uart_recv_byte_default(void *self, uint32_t timeout_us);
+// void cfw_uart_send_byte_default(void *self, uint8_t byte);

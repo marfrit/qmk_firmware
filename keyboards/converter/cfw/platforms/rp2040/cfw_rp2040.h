@@ -82,6 +82,8 @@
 #ifndef CFW_DMA_RING_SIZE
 #define CFW_DMA_RING_SIZE 256
 #endif
+_Static_assert((CFW_DMA_RING_SIZE & (CFW_DMA_RING_SIZE - 1)) == 0,
+               "CFW_DMA_RING_SIZE must be a power of 2 (DMA ring wrap requires it)");
 
 // SIO FIFO event encoding
 // We pack (row, col, pressed) into a single 32-bit word for the

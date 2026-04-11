@@ -24,9 +24,12 @@ void cfw_matrix_init(const cfw_converter_t *conv, cfw_wire_t *wire) {
         }
     }
 
-    // Initialize keyboard
-    if (conv->init) {
-        conv->init(wire, &kb_info);
+    // Initialize keyboard (skip if identification failed — sending
+    // commands to an absent or confused keyboard is pointless)
+    if (conv->init && kb_info.type != CFW_KB_UNKNOWN) {
+        if (!conv->init(wire, &kb_info)) {
+            kb_info.description = "Init failed";
+        }
     }
 
     initialized = true;

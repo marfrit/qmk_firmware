@@ -548,8 +548,24 @@ static void core1_entry(void) {
         core1_converter->init(core1_wire, &info);
     }
 
-    // Main loop: read events, push to SIO FIFO
+    // Main loop: read events, push to SIO FIFO, process commands from Core 0
     while (true) {
+        // --- Process commands from Core 0 (LED updates, etc.) ---
+        // Drain all pending commands before polling for key events.
+        // This prevents the Core0→Core1 FIFO from filling up and
+        // blocking Core 0 (which would freeze QMK).
+        while (multicore_fifo_rvalid()) {
+            uint32_t cmd = multicore_fifo_pop_blocking();
+            if ((cmd >> 16) == CFW_SIO_CMD_MAGIC) {
+                uint8_t cmd_type = (cmd >> 8) & 0xFF;
+                uint8_t cmd_data = cmd & 0xFF;
+                if (cmd_type == CFW_SIO_CMD_LEDS && core1_converter->set_leds) {
+                    core1_converter->set_leds(core1_wire, &info, cmd_data);
+                }
+            }
+        }
+
+        // --- Poll for key events ---
         uint8_t row, col;
         bool pressed;
 
@@ -566,17 +582,10 @@ static void core1_entry(void) {
                 multicore_fifo_push_blocking(event);
             }
         } else if (core1_converter->scan_matrix) {
-            // Polled converter on Core 1 doesn't make as much sense
-            // (the whole point is event-driven), but support it anyway
-            // by sending individual bit changes through the FIFO.
-            // Left as an exercise for the reader.
             busy_wait_us_32(1000);
         }
 
         // Brief yield to prevent tight-looping when keyboard is idle.
-        // The recv_byte inside next_event already has a timeout,
-        // so this is just a safety net.
-        // Don't yield too long — we want sub-millisecond response.
         busy_wait_us_32(100);
     }
 }
@@ -668,8 +677,11 @@ bool cfw_rp2040_drain_sio_fifo(matrix_row_t matrix[]) {
     (((uint32_t)CFW_SIO_CMD_MAGIC << 16) | ((uint32_t)(cmd) << 8) | (data))
 
 void cfw_rp2040_send_command(uint8_t cmd) {
-    // Currently only LED commands. Extend as needed.
-    // Core 1 would check multicore_fifo_rvalid() in its main loop
-    // and process commands between key event polling.
-    multicore_fifo_push_blocking(CFW_SIO_CMD_PACK(CFW_SIO_CMD_LEDS, cmd));
+    // Non-blocking push. If the FIFO is full (Core 1 hasn't drained yet),
+    // drop the command rather than freezing Core 0 / QMK. LED updates
+    // are idempotent — the next one will arrive soon anyway.
+    if (multicore_fifo_wready()) {
+        sio_hw->fifo_wr = CFW_SIO_CMD_PACK(CFW_SIO_CMD_LEDS, cmd);
+        __sev();  // signal Core 1
+    }
 }

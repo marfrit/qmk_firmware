@@ -305,9 +305,9 @@ static bool ibmpc_identify(cfw_wire_t *wire, cfw_keyboard_info_t *info) {
         // Wait for BAT anyway
     }
 
-    // Wait for BAT (0xAA) — up to 3 seconds
-    // AT 84-key can take up to 9.9 seconds (!) per TechRef
-    int16_t bat = wire_recv_wait(wire, 3000);
+    // Wait for BAT (0xAA) — AT 84-key can take up to 9.9s per TechRef.
+    // Use 11s to be safe with old/slow hardware.
+    int16_t bat = wire_recv_wait(wire, 11000);
 
     // Wait for optional BF BF (terminal BAT)
     int16_t bf1 = wire_recv_wait(wire, 500);

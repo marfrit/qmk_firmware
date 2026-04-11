@@ -22,6 +22,7 @@
 #include "cfw_avr.h"
 #include "gpio.h"
 #include "wait.h"
+#include "ps2_isr_common.h"
 #include <string.h>
 
 // ---- Global context for ISR access ----
@@ -132,55 +133,14 @@ void cfw_avr_clock_isr(void) {
     if (!ctx) return;
 
     // Double-check: only process on falling edge
-    // (Some AVR interrupt configs fire on both edges)
+    // (PCINT configs fire on both edges; INT0/INT1 don't need this
+    // but it's cheap insurance — 5 cycles)
     if (gpio_read_pin(ctx->clock_pin)) return;
 
     uint8_t bit = gpio_read_pin(ctx->data_pin) ? 1 : 0;
-
-    switch (ctx->isr_state) {
-        case 0:  // Start bit (must be 0)
-            if (bit != 0) {
-                // Bad start bit — noise or misalignment. Reset.
-                ctx->isr_state = 0;
-                return;
-            }
-            ctx->isr_data = 0;
-            ctx->isr_parity = 0;
-            ctx->isr_state = 1;
-            break;
-
-        case 1: case 2: case 3: case 4:
-        case 5: case 6: case 7: case 8:  // Data bits 0-7 (LSB first)
-            ctx->isr_data >>= 1;
-            if (bit) {
-                ctx->isr_data |= 0x80;
-                ctx->isr_parity++;
-            }
-            ctx->isr_state++;
-            break;
-
-        case 9:  // Parity bit (odd parity)
-            if (bit) ctx->isr_parity++;
-            if (!(ctx->isr_parity & 1)) {
-                // Parity error — discard
-                ctx->isr_state = 0;
-                return;
-            }
-            ctx->isr_state = 10;
-            break;
-
-        case 10:  // Stop bit (must be 1)
-            if (bit) {
-                // Valid frame — push to ring buffer
-                ring_push(ctx, ctx->isr_data);
-            }
-            // Reset for next frame (whether valid or not)
-            ctx->isr_state = 0;
-            break;
-
-        default:
-            ctx->isr_state = 0;
-            break;
+    int16_t result = cfw_ps2_isr_step(&ctx->isr, bit);
+    if (result >= 0) {
+        ring_push(ctx, (uint8_t)result);
     }
 }
 

@@ -61,6 +61,7 @@
 #pragma once
 
 #include "cfw.h"
+#include "ps2_isr_common.h"
 #include <avr/interrupt.h>
 
 // ---- Configuration ----
@@ -72,6 +73,8 @@
 #ifndef CFW_AVR_RING_SIZE
 #define CFW_AVR_RING_SIZE 32
 #endif
+_Static_assert((CFW_AVR_RING_SIZE & (CFW_AVR_RING_SIZE - 1)) == 0,
+               "CFW_AVR_RING_SIZE must be a power of 2");
 
 // ---- AVR Platform Context ----
 
@@ -80,23 +83,8 @@ typedef struct {
     cfw_pin_t data_pin;
     cfw_pin_t clock_pin;
 
-    // ISR state: the interrupt handler builds bytes here
-    // These are volatile because ISR and main loop share them.
-    //
-    // HOW THE ISR BUILDS A BYTE:
-    // Each falling clock edge fires the ISR. The ISR has a state
-    // counter (0-10) tracking which bit we're on:
-    //   state 0: start bit (must be 0, else reset)
-    //   state 1-8: data bits, shifted in LSB first
-    //   state 9: parity bit (odd parity check)
-    //   state 10: stop bit (must be 1), push to ring buffer
-    //
-    // If any bit fails validation (bad start, bad parity, bad stop),
-    // the state resets to 0 and the partial byte is discarded.
-    // The keyboard will re-send if we inhibit and release.
-    volatile uint8_t isr_state;
-    volatile uint8_t isr_data;
-    volatile uint8_t isr_parity;
+    // ISR state: shared PS/2 frame assembler (see wire/ps2_isr_common.h)
+    cfw_ps2_isr_t isr;
 
     // Ring buffer: ISR writes, main loop reads
     // Access must be atomic (cli/sei around multi-byte operations
